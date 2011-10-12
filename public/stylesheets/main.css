@@ -1,0 +1,17 @@
+
+div#header {
+    background-color: #add8e6;
+    padding: 5px 5px 5px 5px;
+    margin-bottom: 10px;
+}
+
+div#browser {
+    padding: 5px 5px 5px 5px;
+
+}
+
+div#footer {
+    background-color: #ffffe0;
+    padding: 5px 5px 5px 5px;
+
+}
