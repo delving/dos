@@ -3,9 +3,9 @@
 # ~~~~
 
 # Home page
-GET     /                                       Application.index
+GET     /@dos                                   dos.MCP.index
 
-GET     /browser/list                           Browser.list
+POST    /@dos/browser/list                      dos.Browser.list
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

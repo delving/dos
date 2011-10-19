@@ -1,4 +1,4 @@
-package models
+package models.dos
 
 import com.mongodb.casbah.{MongoDB, MongoConnection}
 import com.novus.salat.Context

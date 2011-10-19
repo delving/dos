@@ -1,4 +1,4 @@
-#{extends 'main.html' /}
+#{extends '/DoS/MCP/main.html' /}
 #{set title:'Delving Image Server' /}
 
 <div id="header">
@@ -23,7 +23,7 @@
       directories: ko.observableArray(),
 
       refreshDirectories: function() {
-        $.postKOJson('/browser/list', this, function(data) {
+        $.postKOJson('/@dos/browser/list', this, function(data) {
           viewModel.directories(data.directories);
         });
       }

@@ -1,4 +1,4 @@
-package controllers
+package controllers.dos
 
 import org.codehaus.jackson.map.annotate.JsonCachable
 import org.bson.types.ObjectId
@@ -20,7 +20,7 @@ trait AdditionalActions {
     override def apply(request: Request, response: Response) {
       val encoding = getEncoding
       setContentTypeIfNotSet(response, "application/json; charset=" + encoding)
-      response.out.write(DISJson.generate(data).getBytes(encoding))
+      response.out.write(DoSJson.generate(data).getBytes(encoding))
     }
   }
 }
@@ -39,8 +39,8 @@ class ObjectIdDeserializer extends JsonDeserializer[ObjectId] {
   }
 }
 
-object DISJson extends com.codahale.jerkson.Json {
-  val module = new SimpleModule("DIS", Version.unknownVersion())
+object DoSJson extends com.codahale.jerkson.Json {
+  val module = new SimpleModule("DoS", Version.unknownVersion())
   module.addSerializer(classOf[ObjectId], new ObjectIdSerializer)
   module.addDeserializer(classOf[ObjectId], new ObjectIdDeserializer)
   mapper.registerModule(module)
