@@ -2,16 +2,28 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
+# UI
 GET     /@dos                                   dos.MCP.index
-
 POST    /@dos/browser/list                      dos.Browser.list
+
+# File Upload API
+POST       /file/upload/{uid}                   dos.FileUpload.fileUpload
+DELETE     /file/{id}                           dos.FileUpload.deleteFile
+
+# File Download API
+GET        /file/{id}                           dos.FileStore.get
+
+# Image Display API
+GET        /file/image/{id}                     dos.ImageDisplay.displayImage
+GET        /thumbnail/{id}/{width}?             dos.ImageDisplay.displayThumbnail
+GET        /thumbnail/{id}                      dos.ImageDisplay.displayThumbnail
+
+# Image Cache API
+GET        /image/cache                         dos.ImageCache.image
+
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
 # Map static resources from the /app/public folder to the /public path
 GET     /public/                                staticDir:public
-
-# Catch all
-*       /{controller}/{action}                  {controller}.{action}

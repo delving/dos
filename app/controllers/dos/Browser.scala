@@ -1,16 +1,16 @@
-package controllers.dos {
+package controllers.dos
 
 import play.mvc.Controller
-import java.io.File
 import play.mvc.results.Result
+import java.io.File
+import extensions.dos.{DoSJson, Extensions}
 
-object MCP extends Controller {
+/**
+ * 
+ * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
+ */
 
-  def index() = Template
-
-}
-
-object Browser extends Controller with AdditionalActions {
+object Browser extends Controller with Extensions {
 
   def list(data: String): Result = {
     val viewModel = DoSJson.parse[ViewModel](data)
@@ -20,12 +20,8 @@ object Browser extends Controller with AdditionalActions {
     val directories: Array[File] = f.listFiles.filter(_.isDirectory)
     Json(Map("directories" -> directories.map(d => Directory(d.getAbsolutePath))))
   }
-
 }
 
 case class ViewModel(rootPath: String)
 
 case class Directory(path: String)
-
-
-}

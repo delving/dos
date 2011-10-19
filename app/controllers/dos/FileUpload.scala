@@ -9,13 +9,14 @@ import play.data.Upload
 import com.mongodb.casbah.gridfs.GridFSDBFile
 import play.mvc.{Controller, Util}
 import org.bson.types.ObjectId
+import extensions.dos.Extensions
 
 /**
  * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends Controller {
+object FileUpload extends Controller with Extensions {
 
   def uploadFile(uid: String): Result = {
     val uploads: List[Upload] = request.args.get("__UPLOADS").asInstanceOf[java.util.List[play.data.Upload]]
