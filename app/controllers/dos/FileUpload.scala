@@ -16,7 +16,7 @@ import extensions.dos.Extensions
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object FileUpload extends Controller with Extensions {
+object FileUpload extends Controller with Extensions with Thumbnail {
 
   // ~~ public HTTP API
 
@@ -35,15 +35,15 @@ object FileUpload extends Controller with Extensions {
    */
   def deleteFile(id: String): Result = {
     val oid = if (ObjectId.isValid(id)) new ObjectId(id) else (return Error("Invalid file ID " + id))
-    fs.find(oid) foreach {
+    fileStore.find(oid) foreach {
       toDelete =>
       // remove thumbnails
-        fs.find(MongoDBObject(FILE_POINTER_FIELD -> oid)) foreach {
+        fileStore.find(MongoDBObject(FILE_POINTER_FIELD -> oid)) foreach {
           t =>
-            fs.remove(t.getId.asInstanceOf[ObjectId])
+            fileStore.remove(t.getId.asInstanceOf[ObjectId])
         }
         // remove the file itself
-        fs.remove(oid)
+        fileStore.remove(oid)
     }
     Ok
   }
@@ -51,11 +51,11 @@ object FileUpload extends Controller with Extensions {
 
   // ~~ public Scala API
 
-  @Util def getFilesForUID(uid: String): Seq[StoredFile] = fs.find(MongoDBObject("uid" -> uid)) map {
+  @Util def getFilesForUID(uid: String): Seq[StoredFile] = fileStore.find(MongoDBObject("uid" -> uid)) map {
     f => {
       val id = f.getId.asInstanceOf[ObjectId]
       val thumbnail = if (isImage(f)) {
-        fs.findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
+        fileStore.findOne(MongoDBObject(FILE_POINTER_FIELD -> id)) match {
           case Some(t) => Some(t.id.asInstanceOf[ObjectId])
           case None => None
         }
@@ -70,7 +70,7 @@ object FileUpload extends Controller with Extensions {
    * Attaches all files to an object, given the upload UID
    */
   @Util def markFilesAttached(uid: String, objectId: ObjectId) {
-    fs.find(MongoDBObject("uid" -> uid)) map {
+    fileStore.find(MongoDBObject("uid" -> uid)) map {
       f =>
       // yo listen up, this ain't implemented in the mongo driver and throws an UnsupportedOperationException
       // f.removeField("uid")
@@ -85,10 +85,10 @@ object FileUpload extends Controller with Extensions {
    * using the item id.
    */
   @Util def activateThumbnails(fileId: ObjectId, itemId: ObjectId) {
-    val thumbnails = fs.find(MongoDBObject(FILE_POINTER_FIELD -> fileId))
+    val thumbnails = fileStore.find(MongoDBObject(FILE_POINTER_FIELD -> fileId))
 
     // deactive old thumbnails
-    fs.find(MongoDBObject(THUMBNAIL_ITEM_POINTER_FIELD -> itemId)) foreach {
+    fileStore.find(MongoDBObject(THUMBNAIL_ITEM_POINTER_FIELD -> itemId)) foreach {
       theOldOne =>
         theOldOne.put(THUMBNAIL_ITEM_POINTER_FIELD, "")
         theOldOne.save()
@@ -102,14 +102,14 @@ object FileUpload extends Controller with Extensions {
     }
 
     // deactivate old image
-    fs.findOne(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> itemId)) foreach {
+    fileStore.findOne(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> itemId)) foreach {
       theOldOne =>
         theOldOne.put(IMAGE_ITEM_POINTER_FIELD, "")
         theOldOne.save
     }
 
     // activate new default image
-    fs.findOne(fileId) foreach {
+    fileStore.findOne(fileId) foreach {
       theNewOne =>
         theNewOne.put(IMAGE_ITEM_POINTER_FIELD, itemId)
         theNewOne.save
@@ -124,7 +124,7 @@ object FileUpload extends Controller with Extensions {
 
   @Util private def uploadFileInternal(uid: String, uploads: Iterable[Upload]): Result = {
     val uploadedFiles = for (upload: play.data.Upload <- uploads) yield {
-      val f = fs.createFile(upload.asStream())
+      val f = fileStore.createFile(upload.asStream())
       f.filename = upload.getFileName
       f.contentType = upload.getContentType
       f.put(UPLOAD_UID_FIELD, uid)
@@ -134,9 +134,9 @@ object FileUpload extends Controller with Extensions {
 
       // if this is an image, create a thumbnail for it so we can display it on the fly
       val thumbnailUrl: String = if (f.contentType.contains("image")) {
-        fs.findOne(f._id.get) match {
+        fileStore.findOne(f._id.get) match {
           case Some(storedFile) =>
-            val thumbnails = createThumbnails(storedFile)
+            val thumbnails = createThumbnails(storedFile, fileStore)
             if (thumbnails.size > 0) "/file/" + thumbnails(80).getOrElse(emptyThumbnail) else emptyThumbnail
           case None => ""
         }
@@ -145,26 +145,6 @@ object FileUpload extends Controller with Extensions {
       FileUploadResponse(upload.getFileName, upload.getSize.longValue(), "/file/" + f._id.get, thumbnailUrl, "/file/" + f._id.get)
     }
     Json(uploadedFiles)
-  }
-
-  @Util private def createThumbnails(image: GridFSDBFile): Map[Int, Option[ObjectId]] = {
-    thumbnailSizes.map {
-      size => createThumbnail(image, size._2)
-    }
-  }
-
-  /**
-   * Creates thumbnail and stores a pointer to the original image
-   */
-  @Util private def createThumbnail(image: GridFSDBFile, width: Int) = {
-    val thumbnailStream = ImageCacheService.createThumbnail(image.inputStream, width)
-    val thumbnail = fs.createFile(thumbnailStream)
-    thumbnail.filename = image.filename
-    thumbnail.contentType = "image/jpeg"
-    thumbnail.put(FILE_POINTER_FIELD, image._id)
-    thumbnail.put(THUMBNAIL_WIDTH_FIELD, width)
-    thumbnail.save
-    (width, thumbnail._id)
   }
 
 }

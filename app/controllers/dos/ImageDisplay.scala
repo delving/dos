@@ -8,13 +8,18 @@ import com.mongodb.gridfs.GridFSDBFile
 import play.mvc.results.{RenderBinary, Result}
 
 /**
- * 
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
 object ImageDisplay extends Controller {
 
-    def displayThumbnail(id: String, width: String = ""): Result = {
+  // ~~ public HTTP API
+
+  /**
+   * Display a thumbnail given an ID and a width
+   */
+  def displayThumbnail(id: String, width: String = ""): Result = {
     val thumbnailWidth = if (thumbnailSizes.contains(width)) {
       thumbnailSizes(width)
     } else {
@@ -27,9 +32,20 @@ object ImageDisplay extends Controller {
     renderImage(id, true, thumbnailWidth)
   }
 
+  /**
+   * Display an image given an ID
+   */
   def displayImage(id: String): Result = renderImage(id, false)
 
-  @Util def renderImage(id: String, thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH): Result = {
+
+  // ~~ public Scala API
+
+  @Util def imageExists(objectId: ObjectId) = fileStore.find(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> objectId)).nonEmpty
+
+
+  // ~~ PRIVATE
+
+  @Util private def renderImage(id: String, thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH): Result = {
 
     val (field, oid) = if (ObjectId.isValid(id)) {
       (if (thumbnail) THUMBNAIL_ITEM_POINTER_FIELD else IMAGE_ITEM_POINTER_FIELD, new ObjectId(id))
@@ -40,14 +56,14 @@ object ImageDisplay extends Controller {
 
     val query = if (thumbnail) MongoDBObject(field -> oid, THUMBNAIL_WIDTH_FIELD -> thumbnailWidth) else MongoDBObject(field -> oid)
 
-    val image: Option[GridFSDBFile] = fs.findOne(query) match {
+    val image: Option[GridFSDBFile] = fileStore.findOne(query) match {
       case Some(file) => {
         ImageCacheService.setImageCacheControlHeaders(file, response, 60 * 15)
         Some(file.underlying)
       }
       case None if (thumbnail) => {
         // try to find the next fitting size
-        fs.find(MongoDBObject(field -> oid)).sortWith((a, b) => a.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int] > b.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).headOption match {
+        fileStore.find(MongoDBObject(field -> oid)).sortWith((a, b) => a.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int] > b.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).headOption match {
           case Some(t) => Some(t)
           case None => return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
         }
@@ -60,8 +76,4 @@ object ImageDisplay extends Controller {
       case Some(t) => new RenderBinary(t.inputStream, t.filename, t.length, t.contentType, true)
     }
   }
-
-
-  @Util def imageExists(objectId: ObjectId) = fs.find(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> objectId)).nonEmpty
-
 }

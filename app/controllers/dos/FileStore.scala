@@ -15,7 +15,7 @@ object FileStore extends Controller {
   def get(id: String): Result = {
     if (!ObjectId.isValid(id)) return Error("Invalid ID " + id)
     val oid = new ObjectId(id)
-    val file = fs.findOne(oid) getOrElse (return NotFound("Could not find file with ID " + id))
+    val file = fileStore.findOne(oid) getOrElse (return NotFound("Could not find file with ID " + id))
     new RenderBinary(file.inputStream, file.filename, file.length, file.contentType, false)
   }
 }

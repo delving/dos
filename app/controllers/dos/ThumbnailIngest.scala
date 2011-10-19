@@ -39,9 +39,9 @@ object ThumbnailIngest extends Controller {
 
   def remove(path: String): Result = {
     if(path == null) Error("Null path parameter")
-    val thumbs = fs.find(MongoDBObject(ORIGIN_PATH_FIELD -> path.r))
+    val thumbs = fileStore.find(MongoDBObject(ORIGIN_PATH_FIELD -> path.r))
     thumbs.foreach {
-      t => fs.remove(t.getId.asInstanceOf[ObjectId])
+      t => fileStore.remove(t.getId.asInstanceOf[ObjectId])
     }
     Text("Removed %s thumbnails".format(thumbs.length))
   }
@@ -49,7 +49,7 @@ object ThumbnailIngest extends Controller {
   @Util private def storeThumbnail(image: File, width: Int): Option[ObjectId] = {
     try {
       val thumbnailStream = ImageCacheService.createThumbnail(new FileInputStream(image), width, true)
-      val thumbnail = fs.createFile(thumbnailStream)
+      val thumbnail = fileStore.createFile(thumbnailStream)
       thumbnail.filename = image.getName
       thumbnail.contentType = "image/jpeg"
       val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName
