@@ -30,6 +30,10 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
+  <component name="HighlightingAdvisor">
+    <option name="SUGGEST_TYPE_AWARE_HIGHLIGHTING" value="false" />
+    <option name="TYPE_AWARE_HIGHLIGHTING_ENABLED" value="true" />
+  </component>
   <component name="IdProvider" IDEtalkID="5A61B9EA8E4B8A305C5CAFB4E7E0E1D6" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />

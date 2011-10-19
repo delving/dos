@@ -3,7 +3,11 @@
 require:
     - play
     - play -> scala 0.9.1
-
+    - commons-httpclient -> commons-httpclient 3.1
+    - com.thebuzzmedia -> imgscalr-lib 3.2
+    - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
+        exclude:
+            - org.scala-lang -> *
     - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
         exclude:
             - org.scala-lang -> scala-library
@@ -13,6 +17,11 @@ require:
             - org.scala-lang -> scala-library
 
 repositories:
+    - scala-tools:
+        type: iBiblio
+        root: "http://scala-tools.org/repo-releases/"
+        contains:
+            - com.mongodb.casbah.*
     - novus:
         type: iBiblio
         root: "http://repo.novus.com/snapshots/"
@@ -23,3 +32,8 @@ repositories:
         root: "http://repo.codahale.com/"
         contains:
             - com.codahale.*
+    - theBuzzMedia:
+        type: iBiblio
+        root: "http://maven.thebuzzmedia.com"
+        contains:
+            - com.thebuzzmedia.*

@@ -21,12 +21,14 @@
       <library name="Project Libraries">
         <CLASSES>
           <root url="file://$MODULE_DIR$/lib" />
-          <root url="file://$MODULE_DIR$/modules/scala-0.9.1/lib" />
+          <root url="file://$PLAY_HOME$/modules/scala-0.9.1/lib" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file://$PLAY_HOME$/modules/scala-0.9.1/src" />
+        </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/modules/scala-0.9.1/lib" recursive="false" />
+        <jarDirectory url="file://$PLAY_HOME$/modules/scala-0.9.1/lib" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
