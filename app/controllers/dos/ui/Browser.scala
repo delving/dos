@@ -1,4 +1,4 @@
-package controllers.dos
+package controllers.dos.ui
 
 import play.mvc.Controller
 import play.mvc.results.Result

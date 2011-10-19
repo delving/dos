@@ -32,7 +32,7 @@ object ImageDisplay extends Controller {
   @Util def renderImage(id: String, thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH): Result = {
 
     val (field, oid) = if (ObjectId.isValid(id)) {
-      (if (thumbnail) THUMBNAIL_OBJECT_POINTER_FIELD else IMAGE_OBJECT_POINTER_FIELD, new ObjectId(id))
+      (if (thumbnail) THUMBNAIL_ITEM_POINTER_FIELD else IMAGE_ITEM_POINTER_FIELD, new ObjectId(id))
     } else {
       // string identifier - for e.g. ingested images
       (IMAGE_ID_FIELD, id)
@@ -62,6 +62,6 @@ object ImageDisplay extends Controller {
   }
 
 
-  @Util def imageExists(objectId: ObjectId) = fs.find(MongoDBObject(IMAGE_OBJECT_POINTER_FIELD -> objectId)).nonEmpty
+  @Util def imageExists(objectId: ObjectId) = fs.find(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> objectId)).nonEmpty
 
 }

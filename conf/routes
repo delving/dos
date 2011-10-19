@@ -3,8 +3,8 @@
 # ~~~~
 
 # UI
-GET     /@dos                                   dos.MCP.index
-POST    /@dos/browser/list                      dos.Browser.list
+GET     /@dos                                   dos.ui.MCP.index
+POST    /@dos/browser/list                      dos.ui.Browser.list
 
 # File Upload API
 POST       /file/upload/{uid}                   dos.FileUpload.fileUpload
