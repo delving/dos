@@ -28,7 +28,7 @@ object Tasks extends Controller with Extensions {
   }
 
   def cancel(id: ObjectId): Result = {
-    val task = Task.findOneByID(id) getOrElse (return NotFound)
+    val task = Task.findOneByID(id) getOrElse (return NotFound("Could not find task with id " + id))
     val updated = task.copy(state = CANCELLED)
     Task.save(updated)
     Ok
@@ -44,15 +44,7 @@ object Tasks extends Controller with Extensions {
   }
 
   def listAll(): Result = {
-    Json(Map("tasks" -> Task.find(MongoDBObject()).toList))
+    Json(Map("tasks" -> Task.listAll()))
   }
 
-}
-
-class ObjectIdBinder extends TypeBinder[ObjectId] {
-  def bind(name: String, annotations: Array[Annotation], value: String, actualClass: Class[_], genericType: Type): ObjectId = {
-    if (value == null) return null
-    if (ObjectId.isValid(name)) return new ObjectId(value)
-    null
-  }
 }

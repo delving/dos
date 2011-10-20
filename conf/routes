@@ -6,11 +6,11 @@
 GET     /@dos                                   dos.ui.MCP.index
 GET     /@dos/browse                            dos.ui.MCP.browse
 
-POST    /@dos/task/add                          dos.ui.Task.add
-DELETE  /@dos/task/{id}                         dos.ui.Task.cancel
-GET     /@dos/task/list/queued                  dos.ui.Task.list(what:'queued')
-GET     /@dos/task/list/running                 dos.ui.Task.list(what:'running')
-GET     /@dos/task/list/finished                dos.ui.Task.list(what:'finished')
+PUT     /@dos/task/add                          dos.ui.Tasks.add
+DELETE  /@dos/task/cancel                       dos.ui.Tasks.cancel
+GET     /@dos/task/list/queued                  dos.ui.Tasks.list(what:'queued')
+GET     /@dos/task/list/running                 dos.ui.Tasks.list(what:'running')
+GET     /@dos/task/list/finished                dos.ui.Tasks.list(what:'finished')
 
 # File Upload API
 POST       /file/upload/{uid}                   dos.FileUpload.fileUpload

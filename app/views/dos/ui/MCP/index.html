@@ -5,7 +5,7 @@
   <form method="GET" action="/@dos/browse">
     <label for="path">Path</label>
     <input id="path" name="path" type="text"/>
-    <input type="submit">Refresh</input>
+    <input type="submit" value="Refresh" />
   </form>
 </div>
 
@@ -42,10 +42,11 @@
 
 <script type="text/html" id="taskListTemplate">
   <table>
-    <thead>Da Task Path</thead>
-    {{each tasks()}}
+    <th>Da Task Path</th><th>Da Actions</th>
+    {{each queued()}}
     <tr>
       <td data-bind="text: path"></td>
+      <td><button data-bind="click: function() { cancel(_id); }">Cancel</button></td>
     </tr>
     {{/each}}
   </table>
@@ -55,20 +56,34 @@
   $(document).ready(function() {
 
     var viewModel = {
-      tasks: ko.observableArray([]),
+      queued: ko.observableArray([]),
       selectedDirectories: ko.observableArray([]),
       makeThumbnails: function(path) {
-        $.post('@{dos.ui.Tasks.add()}', {
-          path: path,
-          taskType: 'thumbnails'
-        }, function(addedTask) {
-          viewModel.tasks.push(addedTask)
-        })
+        $.ajax({
+          url: '@{dos.ui.Tasks.add()}',
+          data: {
+            path: path,
+            taskType: 'thumbnails'
+          },
+          success: function(addedTask) {
+            viewModel.queued.push(addedTask);
+          }
+        });
+      },
+      cancel: function(id) {
+        $.ajax({
+          url: '/@dos/task/cancel',
+          data: {id: id},
+          type: 'DELETE',
+          success: function() {
+            viewModel.queued.remove(function(item) {return item._id == id; });
+          }
+        });
       }
     };
 
-    $.getJSON('@{dos.ui.Tasks.listAll()}', function(data) {
-      viewModel.tasks(data.tasks)
+    $.getJSON('/@dos/task/list/queued', function(data) {
+      viewModel.queued(data.tasks);
     });
 
     ko.applyBindings(viewModel);

@@ -7,7 +7,10 @@ import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.{Version, JsonParser, JsonGenerator}
 import play.mvc._
 import play.mvc.Http.{Response, Request}
-import results.{Result, RenderJson}
+import results.{RenderJson}
+import play.data.binding._
+import java.lang.reflect.{Type}
+import java.lang.annotation.Annotation
 
 /**
  * This trait provides additional actions that can be used in controllers
@@ -15,11 +18,24 @@ import results.{Result, RenderJson}
 trait Extensions {
   self: Controller =>
 
+  play.data.binding.Binder.register(classOf[ObjectId], new ObjectIdBinder())
+
   override def Json(data: AnyRef): RenderJson = new RenderJson() {
     override def apply(request: Request, response: Response) {
       val encoding = getEncoding
       setContentTypeIfNotSet(response, "application/json; charset=" + encoding)
       response.out.write(DoSJson.generate(data).getBytes(encoding))
+    }
+  }
+}
+
+
+class ObjectIdBinder extends TypeBinder[ObjectId] {
+  override def bind(name:String, annotations:Array[Annotation], value:String, actualClass:Class[_], genericType:Type) = {
+    value match {
+      case null => null
+      case id if(ObjectId.isValid(id)) => new ObjectId(id)
+      case id if(!ObjectId.isValid(id)) => null
     }
   }
 }

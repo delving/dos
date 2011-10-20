@@ -28,18 +28,18 @@ object TaskType {
   val THUMBNAILS = TaskType("thumbnails")
   val TILES = TaskType("tiles")
   val values = List(THUMBNAILS, TILES)
-  def valueOf(what: String) = values find {_.name == what}
+  def valueOf(what: String) = values find { _.name == what }
 }
 
 case class TaskState(name: String)
 
 object TaskState {
-  val values = List(QUEUED, RUNNING, FINISHED, CANCELLED)
   val QUEUED = TaskState("queued")
   val RUNNING = TaskState("runnung")
   val FINISHED = TaskState("finished")
   val CANCELLED = TaskState("cancelled")
-  def valueOf(what: String) = values.find(_.name == what)
+  val values = List(QUEUED, RUNNING, FINISHED, CANCELLED)
+  def valueOf(what: String) = values find { _.name == what }
 
 }
 
@@ -47,7 +47,9 @@ case class Task(_id: ObjectId = new ObjectId, path: String, taskType: TaskType, 
 
 object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
 
+  def list(taskType: TaskType) = Task.find(MongoDBObject("taskType.name" -> taskType.name)).toList
   def list(state: TaskState) = Task.find(MongoDBObject("state.name" -> state.name)).toList
+  def listAll() = Task.find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
 
 }
 
