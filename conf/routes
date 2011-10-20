@@ -13,13 +13,15 @@ DELETE     /file/{id}                           dos.FileUpload.deleteFile
 # File Download API
 GET        /file/{id}                           dos.FileStore.get
 
+# Image Cache API
+GET        /image/cache                         dos.ImageCache.image
+GET        /thumbnail/cache                     dos.ImageCache.thumbnail
+
 # Image Display API
 GET        /file/image/{id}                     dos.ImageDisplay.displayImage
 GET        /thumbnail/{id}/{width}?             dos.ImageDisplay.displayThumbnail
 GET        /thumbnail/{id}                      dos.ImageDisplay.displayThumbnail
 
-# Image Cache API
-GET        /image/cache                         dos.ImageCache.image
 
 
 # Ignore favicon requests
