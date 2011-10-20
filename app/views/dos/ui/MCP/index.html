@@ -1,0 +1,77 @@
+#{extends '/DoS/ui/MCP/main.html' /}
+#{set title:'Delving object Server' /}
+
+<div id="header">
+  <form method="GET" action="/@dos/browse">
+    <label for="path">Path</label>
+    <input id="path" name="path" type="text"/>
+    <input type="submit">Refresh</input>
+  </form>
+</div>
+
+<hr/>
+
+<div id="browser">
+  <table>
+    #{list files, as:'file'}
+    #{if file.isDir}
+    <tr>
+      <td><a href="@{dos.ui.MCP.browse(file.path)}">${file.name}</a></td>
+      <td>
+        <button data-bind="click: function() { makeThumbnails('${file.path}'); }">Make thumbnails</button>
+      </td>
+    </tr>
+    #{/if}
+    #{else}
+    <tr>
+      <td>${file.name}</td>
+    </tr>
+    #{/else}
+    #{/list}
+  </table>
+</div>
+
+<hr/>
+
+<div id="footer">
+  <div id="queue" style="float: left;" data-bind="template: 'taskListTemplate'"></div>
+  <div id="log" style="float: right;">
+    Blablabla
+  </div>
+</div>
+
+<script type="text/html" id="taskListTemplate">
+  <table>
+    <thead>Da Task Path</thead>
+    {{each tasks()}}
+    <tr>
+      <td data-bind="text: path"></td>
+    </tr>
+    {{/each}}
+  </table>
+</script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    var viewModel = {
+      tasks: ko.observableArray([]),
+      selectedDirectories: ko.observableArray([]),
+      makeThumbnails: function(path) {
+        $.post('@{dos.ui.Tasks.add()}', {
+          path: path,
+          taskType: 'thumbnails'
+        }, function(addedTask) {
+          viewModel.tasks.push(addedTask)
+        })
+      }
+    };
+
+    $.getJSON('@{dos.ui.Tasks.listAll()}', function(data) {
+      viewModel.tasks(data.tasks)
+    });
+
+    ko.applyBindings(viewModel);
+
+  });
+</script>

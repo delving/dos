@@ -4,7 +4,13 @@
 
 # UI
 GET     /@dos                                   dos.ui.MCP.index
-POST    /@dos/browser/list                      dos.ui.Browser.list
+GET     /@dos/browse                            dos.ui.MCP.browse
+
+POST    /@dos/task/add                          dos.ui.Task.add
+DELETE  /@dos/task/{id}                         dos.ui.Task.cancel
+GET     /@dos/task/list/queued                  dos.ui.Task.list(what:'queued')
+GET     /@dos/task/list/running                 dos.ui.Task.list(what:'running')
+GET     /@dos/task/list/finished                dos.ui.Task.list(what:'finished')
 
 # File Upload API
 POST       /file/upload/{uid}                   dos.FileUpload.fileUpload
