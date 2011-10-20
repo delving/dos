@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import play.mvc.Http.Response
-import play.mvc.results.{NotFound, RenderBinary, Result}
+import play.mvc.results.{NotFound, Result}
 import play.utils.Utils
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.Header
@@ -119,13 +119,6 @@ object ImageCacheService {
 
   val cacheDuration = 60 * 60 * 24
 
-  def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int, boundingBox: Boolean = false): InputStream = {
-    val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth, boundingBox)
-    val os: ByteArrayOutputStream = new ByteArrayOutputStream()
-    ImageIO.write(thumbnail, "jpg", os)
-    new ByteArrayInputStream(os.toByteArray)
-  }
-
   def setImageCacheControlHeaders(image: GridFSDBFile, response: Response, duration: Int = cacheDuration) {
     response.setContentTypeIfNotSet(image.contentType)
     val now = System.currentTimeMillis();
@@ -135,15 +128,6 @@ object ImageCacheService {
     response.setHeader("Expires", Utils.getHttpDateFormatter.format(new Date(now + duration * 1000)))
   }
 
-
-  private def resizeImage(imageStream: InputStream, width: Int, boundingBox: Boolean): BufferedImage = {
-    val bufferedImage: BufferedImage = ImageIO.read(imageStream)
-    if (boundingBox) {
-      Scalr.resize(bufferedImage, width, width)
-    } else {
-      Scalr.resize(bufferedImage, Scalr.Mode.FIT_TO_WIDTH, width)
-    }
-  }
 
 
 }

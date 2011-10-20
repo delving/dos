@@ -26,13 +26,12 @@ package object dos {
   val UPLOAD_UID_FIELD = "uid" // temporary UID given to files that are not yet attached to an object after upload
   val ITEM_POINTER_FIELD = "object_id" // pointer to the owning item, for cleanup
   val FILE_POINTER_FIELD = "original_file" // pointer from a thumbnail to its parent file
-  val FILE_FILENAME_FIELD = "original_file_name" // in a thumbnail, name of the parent file
   val IMAGE_ITEM_POINTER_FIELD = "image_object_id" // pointer from an chosen image to its item, useful to lookup an image by item ID
   val THUMBNAIL_ITEM_POINTER_FIELD = "thumbnail_object_id" // pointer from a chosen thumbnail to its item, useful to lookup a thumbnail by item ID
 
   // ~~ images stored locally (file system)
-  val IMAGE_ID_FIELD = "file_id"
-  val ORIGIN_PATH_FIELD = "origin_path"
+  val IMAGE_ID_FIELD = "file_id" // identifier (mostly file name without extension) of an image, or of a thumbnail (to refer to the parent image)
+  val ORIGIN_PATH_FIELD = "origin_path" // path from where this thumbnail has been ingested
 
 
 }
