@@ -35,32 +35,55 @@
 <hr/>
 
 <div id="footer">
-  <div id="queue" style="float: left;" data-bind="template: 'taskListTemplate'"></div>
-  <div id="log" style="float: right;">
-    Blablabla
-  </div>
+  <div id="tasks" style="float: left;" data-bind="template: 'taskListTemplate'" ></div>
+  <div id="log" style="float: right;" data-bind="template: 'logTemplate'"></div>
 </div>
 
 <script type="text/html" id="taskListTemplate">
+  <h3>Queued tasks</h3>
   <table>
     <th>Da Task Path</th>
+    <th>Da Task Type</th>
     <th>Da Actions</th>
     {{each queued()}}
     <tr>
       <td data-bind="text: path"></td>
+      <td data-bind="text: taskType.name"></td>
       <td>
         <button data-bind="click: function() { cancel(_id); }">Cancel</button>
       </td>
     </tr>
     {{/each}}
   </table>
+  <h3>Finished tasks</h3>
+  <table>
+    <th>Da Task Path</th>
+    <th>Da Task Type</th>
+    <thead>Da Actions</thead>
+    {{each finished()}}
+    <tr>
+      <td data-bind="text: path"></td>
+      <td data-bind="text: taskType.name"></td>
+      <td><a href="#" data-bind="click: function() { showLogs(_id); }">Show logs</a></td>
+    </tr>
+    {{/each}}
+  </table></script>
+
+<script type="text/html" id="logTemplate">
+  {{each logs()}}
+  <div data-bind="text: message"></div>
+  {{/each}}
 </script>
 
 <script type="text/javascript">
   $(document).ready(function() {
 
     var viewModel = {
+      watchedTask: ko.observable(),
+      running: ko.observableArray([]),
       queued: ko.observableArray([]),
+      finished: ko.observableArray([]),
+      logs: ko.observableArray([]),
       makeThumbnails: function(path) {
         $.ajax({
           url: '@{dos.ui.Tasks.add()}',
@@ -85,14 +108,27 @@
             });
           }
         });
+      },
+      showLogs: function(id) {
+        $.get('/@dos/log/list/' + id, function(data) {
+          viewModel.logs(data.logs);
+        });
       }
     };
 
-    $.getJSON('/@dos/task/list/queued', function(data) {
-      viewModel.queued(data.tasks);
-    });
-
     ko.applyBindings(viewModel);
+
+
+    $('#tasks').smartupdater({
+      url : "/@dos/task/list",
+      minTimeout: 2000
+    }, function (d) {
+      var data = $.parseJSON(d);
+      viewModel.running(data.running);
+      viewModel.queued(data.queued);
+      viewModel.finished(data.finished);
+      viewModel.watchedTask(viewModel.running[0]);
+    });
 
   });
 </script>

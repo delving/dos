@@ -8,9 +8,12 @@ GET     /@dos/browse                            dos.ui.MCP.browse
 
 PUT     /@dos/task/add                          dos.ui.Tasks.add
 DELETE  /@dos/task/cancel                       dos.ui.Tasks.cancel
+GET     /@dos/task/list                         dos.ui.Tasks.listAll
 GET     /@dos/task/list/queued                  dos.ui.Tasks.list(what:'queued')
 GET     /@dos/task/list/running                 dos.ui.Tasks.list(what:'running')
 GET     /@dos/task/list/finished                dos.ui.Tasks.list(what:'finished')
+
+GET     /@dos/log/list/{taskId}                 dos.ui.Logs.list
 
 # File Upload API
 POST       /file/upload/{uid}                   dos.FileUpload.fileUpload

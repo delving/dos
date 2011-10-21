@@ -51,11 +51,11 @@ object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
   def listAll() = Task.find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
 
   def start(task: Task) {
-    Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.RUNNING, "startedAt" -> new Date))
+    Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.RUNNING.name, "startedAt" -> new Date))
   }
 
   def finish(task: Task) {
-    Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.FINISHED, "finishedAt" -> new Date))
+    Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.FINISHED.name, "finishedAt" -> new Date))
   }
 
   def setTotalItems(task: Task, total: Int) {
@@ -80,7 +80,7 @@ case class TaskState(name: String)
 
 object TaskState {
   val QUEUED = TaskState("queued")
-  val RUNNING = TaskState("runnung")
+  val RUNNING = TaskState("running")
   val FINISHED = TaskState("finished")
   val CANCELLED = TaskState("cancelled")
   val values = List(QUEUED, RUNNING, FINISHED, CANCELLED)

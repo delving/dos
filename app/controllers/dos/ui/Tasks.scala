@@ -44,7 +44,7 @@ object Tasks extends Controller with Extensions {
   }
 
   def listAll(): Result = {
-    Json(Map("tasks" -> Task.listAll()))
+    Json(Map("running" -> Task.list(RUNNING), "queued" -> Task.list(QUEUED), "finished" -> Task.list(FINISHED)))
   }
 
 }
