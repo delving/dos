@@ -1,5 +1,6 @@
 package models {
 
+import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoDB, MongoConnection}
 import com.novus.salat.Context
@@ -34,12 +35,36 @@ object LogLevel {
   def valueOf(what: String) = values find { _.name == what }
 }
 
-case class Task(_id: ObjectId = new ObjectId, path: String, taskType: TaskType, queuedAt: Date = new Date, startedAt: Option[Date] = None, finishedAt: Option[Date] = None, state: TaskState = TaskState.QUEUED)
+case class Task(_id: ObjectId = new ObjectId,
+                path: String,
+                taskType: TaskType,
+                queuedAt: Date = new Date,
+                startedAt: Option[Date] = None,
+                finishedAt: Option[Date] = None,
+                state: TaskState = TaskState.QUEUED,
+                totalItems: Int = 0,
+                processedItems: Int = 0)
 
 object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
   def list(taskType: TaskType) = Task.find(MongoDBObject("taskType.name" -> taskType.name)).toList
   def list(state: TaskState) = Task.find(MongoDBObject("state.name" -> state.name)).sort(MongoDBObject("queuedAt" -> 1)).toList
   def listAll() = Task.find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
+
+  def start(task: Task) {
+    Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.RUNNING, "startedAt" -> new Date))
+  }
+
+  def finish(task: Task) {
+    Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.FINISHED, "finishedAt" -> new Date))
+  }
+
+  def setTotalItems(task: Task, total: Int) {
+    Task.update(MongoDBObject("_id" -> task._id), $set ("totalItems" -> total))
+  }
+
+  def incrementProcessedItems(task: Task, amount: Int) {
+    Task.update(MongoDBObject("_id" -> task._id), $inc ("processedItems" -> amount))
+  }
 }
 
 case class TaskType(name: String)

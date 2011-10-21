@@ -24,9 +24,12 @@ object ThumbnailProcessor extends Processor with Thumbnail {
 
       val images = p.listFiles().filter(f => isImage(f.getName))
 
+      Task.setTotalItems(task, images.size)
+
       images foreach {
         image => try {
           for (s <- sizes) storeThumbnail(image, s)
+          Task.incrementProcessedItems(task, 1)
         } catch {
           case _ => error(task, "Error creating thumbnail for image '%s'".format(image.getAbsolutePath))
         }
