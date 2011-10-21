@@ -14,8 +14,8 @@ package object dos {
   val imageCacheStoreConnection = MongoConnection().getDB("imageCache")
   val imageCacheStore: GridFS = GridFS(imageCacheStoreConnection)
 
-  val emptyThumbnail = "/public/images/dummy-object.png"
-  val emptyThumbnailFile = new File(Play.modules.get("dos").getRealFile.getAbsolutePath + emptyThumbnail)
+  val emptyThumbnail = "/public/dos/images/dummy-object.png"
+  val emptyThumbnailFile = new File(Play.applicationPath, emptyThumbnail)
 
   val DEFAULT_THUMBNAIL_WIDTH = 220
   val thumbnailSizes = Map("tiny" -> 80, "small" -> 220)

@@ -4,8 +4,8 @@
 <div id="header">
   <form method="GET" action="/@dos/browse">
     <label for="path">Path</label>
-    <input id="path" name="path" type="text"/>
-    <input type="submit" value="Refresh" />
+    <input id="path" name="path" type="text" value=${params.path} />
+    <input type="submit" value="Refresh"/>
   </form>
 </div>
 
@@ -24,6 +24,7 @@
     #{/if}
     #{else}
     <tr>
+      <td><img src="/thumbnail/${file.id()}" width="80" height="80"/></td>
       <td>${file.name}</td>
     </tr>
     #{/else}
@@ -42,11 +43,14 @@
 
 <script type="text/html" id="taskListTemplate">
   <table>
-    <th>Da Task Path</th><th>Da Actions</th>
+    <th>Da Task Path</th>
+    <th>Da Actions</th>
     {{each queued()}}
     <tr>
       <td data-bind="text: path"></td>
-      <td><button data-bind="click: function() { cancel(_id); }">Cancel</button></td>
+      <td>
+        <button data-bind="click: function() { cancel(_id); }">Cancel</button>
+      </td>
     </tr>
     {{/each}}
   </table>
@@ -57,7 +61,6 @@
 
     var viewModel = {
       queued: ko.observableArray([]),
-      selectedDirectories: ko.observableArray([]),
       makeThumbnails: function(path) {
         $.ajax({
           url: '@{dos.ui.Tasks.add()}',
@@ -76,7 +79,9 @@
           data: {id: id},
           type: 'DELETE',
           success: function() {
-            viewModel.queued.remove(function(item) {return item._id == id; });
+            viewModel.queued.remove(function(item) {
+              return item._id == id;
+            });
           }
         });
       }

@@ -69,7 +69,8 @@ object ImageDisplay extends Controller {
 
   @Util private[dos] def thumbnailWidth(width: String): Int = {
     width match {
-      case null | "" => DEFAULT_THUMBNAIL_WIDTH
+      case null => DEFAULT_THUMBNAIL_WIDTH
+      case "" => DEFAULT_THUMBNAIL_WIDTH
       case w if thumbnailSizes.contains(width) => thumbnailSizes(w)
       case w =>
         try {
