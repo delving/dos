@@ -1,5 +1,6 @@
 package models {
 
+import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoDB, MongoConnection}
 import com.novus.salat.Context
 import play.Play
@@ -11,6 +12,7 @@ package object dos {
 
   val connection: MongoDB = MongoConnection()("dis")
   val taskCollection = connection("Tasks")
+  val logCollection = connection("Log")
 
   implicit val ctx = new Context {
     val name = Some("PlaySalatContext")
@@ -20,7 +22,25 @@ package object dos {
 
 package dos {
 
-import com.mongodb.casbah.commons.MongoDBObject
+case class Log(message: String, level: LogLevel = LogLevel.INFO, _id: ObjectId = new ObjectId, task_id: ObjectId, date: Date = new Date)
+
+object Log extends SalatDAO[Log, ObjectId](collection = logCollection)
+
+case class LogLevel(name: String)
+object LogLevel {
+  val INFO = LogLevel("info")
+  val ERROR = LogLevel("error")
+  val values = List(INFO, ERROR)
+  def valueOf(what: String) = values find { _.name == what }
+}
+
+case class Task(_id: ObjectId = new ObjectId, path: String, taskType: TaskType, queuedAt: Date = new Date, startedAt: Option[Date] = None, finishedAt: Option[Date] = None, state: TaskState = TaskState.QUEUED)
+
+object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
+  def list(taskType: TaskType) = Task.find(MongoDBObject("taskType.name" -> taskType.name)).toList
+  def list(state: TaskState) = Task.find(MongoDBObject("state.name" -> state.name)).sort(MongoDBObject("queuedAt" -> 1)).toList
+  def listAll() = Task.find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
+}
 
 case class TaskType(name: String)
 
@@ -42,17 +62,6 @@ object TaskState {
   def valueOf(what: String) = values find { _.name == what }
 
 }
-
-case class Task(_id: ObjectId = new ObjectId, path: String, taskType: TaskType, queuedAt: Date = new Date, startedAt: Option[Date] = None, finishedAt: Option[Date] = None, state: TaskState = TaskState.QUEUED)
-
-object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
-
-  def list(taskType: TaskType) = Task.find(MongoDBObject("taskType.name" -> taskType.name)).toList
-  def list(state: TaskState) = Task.find(MongoDBObject("state.name" -> state.name)).toList
-  def listAll() = Task.find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
-
-}
-
 }
 
 }

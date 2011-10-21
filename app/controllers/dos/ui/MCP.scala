@@ -38,5 +38,5 @@ case class BrowserFile(path: String,
                        isDir: Boolean,
                        contentType: String) {
   def isImage = contentType.contains("image")
-  def id = if(name.contains(".")) name.split("\\.")(0) else name
+  def id = if(name.contains(".") && !name.startsWith(".")) name.split("\\.")(0) else name
 }
