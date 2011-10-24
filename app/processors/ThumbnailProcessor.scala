@@ -31,10 +31,10 @@ object ThumbnailProcessor extends Processor with Thumbnail {
         image => try {
           for (s <- sizes) storeThumbnail(image, s)
           Task.incrementProcessedItems(task, 1)
+          info(task, "Created thumbnail for image '%s'".format(image.getAbsolutePath))
         } catch {
           case t => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage))
         }
-        info(task, "Created thumbnail for image '%s'".format(image.getAbsolutePath))
       }
     }
   }

@@ -19,6 +19,7 @@
       <td><a href="@{dos.ui.MCP.browse(file.path)}">${file.name}</a></td>
       <td>
         <button data-bind="click: function() { addTask('${file.path}', 'thumbnails'); }">Make thumbnails</button>
+        <button data-bind="click: function() { addTask('${file.path}', 'flatten'); }">Flatten source TIFs</button>
         <button data-bind="click: function() { addTask('${file.path}', 'tiles'); }">Make tiles</button>
       </td>
     </tr>

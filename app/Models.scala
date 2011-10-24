@@ -8,6 +8,7 @@ import play.Play
 import java.util.Date
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
+import java.io.File
 
 package object dos {
 
@@ -47,7 +48,11 @@ case class Task(_id: ObjectId = new ObjectId,
                 finishedAt: Option[Date] = None,
                 state: TaskState = TaskState.QUEUED,
                 totalItems: Int = 0,
-                processedItems: Int = 0)
+                processedItems: Int = 0) {
+
+  def pathAsFile = new File(path)
+  def pathExists = new File(path).exists()
+}
 
 object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
   def list(taskType: TaskType) = Task.find(MongoDBObject("taskType.name" -> taskType.name)).toList
@@ -75,8 +80,9 @@ case class TaskType(name: String)
 
 object TaskType {
   val THUMBNAILS = TaskType("thumbnails")
+  val FLATTEN = TaskType("flatten")
   val TILES = TaskType("tiles")
-  val values = List(THUMBNAILS, TILES)
+  val values = List(THUMBNAILS, FLATTEN, TILES)
   def valueOf(what: String) = values find { _.name == what }
 }
 
