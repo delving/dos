@@ -3,8 +3,7 @@ package jobs {
 import models.dos.{TaskType, TaskState, Task}
 import util.Logging
 import play.jobs.{Every, Job}
-import processors.ThumbnailProcessor
-import java.util.Date
+import processors.{PTIFTilingProcessor, ThumbnailProcessor}
 
 /**
  *
@@ -23,7 +22,7 @@ class TaskQueueJob extends Job with Logging {
         try {
           task.taskType match {
             case TaskType.THUMBNAILS => ThumbnailProcessor.process(task, Map("sizes" -> controllers.dos.thumbnailSizes.values.toList))
-            case TaskType.TILES => println("no can do")
+            case TaskType.TILES => PTIFTilingProcessor.process(task)
           }
         } catch {
           case t => error(task, "Error running task of kind '%s' on path '%s': %s".format(task.taskType.name, task.path, t.getMessage))

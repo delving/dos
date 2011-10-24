@@ -12,6 +12,7 @@ import java.io.{FileInputStream, File}
  */
 
 object ThumbnailProcessor extends Processor with Thumbnail {
+
   def process(task: Task, params: Map[String, AnyRef]) {
     val p = new File(task.path)
     if (!p.exists()) {
@@ -37,12 +38,6 @@ object ThumbnailProcessor extends Processor with Thumbnail {
       }
     }
   }
-
-  def isImage(name: String) = name.contains(".") && !name.startsWith(".") && (
-          name.split("\\.")(1).toLowerCase match {
-            case "jpg" | "tif" | "tiff" => true
-            case _ => false
-          })
 
   @Util private def storeThumbnail(image: File, width: Int): Option[ObjectId] = {
     val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName

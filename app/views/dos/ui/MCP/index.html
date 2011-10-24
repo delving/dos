@@ -18,7 +18,8 @@
     <tr>
       <td><a href="@{dos.ui.MCP.browse(file.path)}">${file.name}</a></td>
       <td>
-        <button data-bind="click: function() { makeThumbnails('${file.path}'); }">Make thumbnails</button>
+        <button data-bind="click: function() { addTask('${file.path}', 'thumbnails'); }">Make thumbnails</button>
+        <button data-bind="click: function() { addTask('${file.path}', 'tiles'); }">Make tiles</button>
       </td>
     </tr>
     #{/if}
@@ -104,12 +105,12 @@
       queued: ko.observableArray([]),
       finished: ko.observableArray([]),
       logs: ko.observableArray([]),
-      makeThumbnails: function(path) {
+      addTask: function(path, type) {
         $.ajax({
           url: '@{dos.ui.Tasks.add()}',
           data: {
             path: path,
-            taskType: 'thumbnails'
+            taskType: type
           },
           type: 'PUT',
           success: function(addedTask) {

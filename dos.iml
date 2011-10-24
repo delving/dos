@@ -26,6 +26,8 @@
         <JAVADOC />
         <SOURCES>
           <root url="file://$PLAY_HOME$/modules/scala-0.9.1/src" />
+          <root url="jar://$MODULE_DIR$/lib/casbah-commons_2.8.1-2.1.5.0.jar!/" />
+          <root url="file://$MODULE_DIR$/../magicktiler/src/main/java" />
         </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
         <jarDirectory url="file://$PLAY_HOME$/modules/scala-0.9.1/lib" recursive="false" />
