@@ -37,11 +37,11 @@ object PTIFTilingProcessor extends Processor {
     } else {
 
       val outputPath = new File(tilesOutputBasePath, p.getName)
-      if(outputPath.exists() && outputPath.isDirectory) {
+      if (outputPath.exists() && outputPath.isDirectory) {
         error(task, "Output directory '%s' already exists, delete it first if you want to re-tile".format(outputPath.getAbsolutePath))
         return
       }
-      if(!outputPath.mkdir()) {
+      if (!outputPath.mkdir()) {
         error(task, "Cannot create output directory '%s'".format(outputPath.getAbsolutePath))
         return
       }
@@ -64,7 +64,8 @@ object PTIFTilingProcessor extends Processor {
           targetFile.createNewFile()
 
           try {
-            tiler.convert(i, targetFile)
+            val tileInfo = tiler.convert(i, targetFile)
+            info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels")
           } catch {
             case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage))
           }
