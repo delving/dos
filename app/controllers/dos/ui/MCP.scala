@@ -26,7 +26,7 @@ object MCP extends Controller {
         name = f.getName,
         isDir = f.isDirectory,
         contentType = play.libs.MimeTypes.getContentType(f.getName)
-      ))
+      )).sortBy(!_.isDir)
     }
     Template("/dos/ui/MCP/index.html", 'files -> files)
   }
