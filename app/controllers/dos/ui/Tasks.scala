@@ -1,15 +1,11 @@
 package controllers.dos.ui
 
-import _root_.models.dos.{TaskType, TaskState, Task}
+import models.dos.{TaskType, TaskState, Task}
 import extensions.dos.Extensions
 import TaskState._
 import play.mvc.Controller
 import org.bson.types.ObjectId
-import play.data.binding.TypeBinder
-import java.lang.annotation.Annotation
-import java.lang.reflect.Type
 import play.mvc.results.Result
-import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  *
@@ -45,6 +41,16 @@ object Tasks extends Controller with Extensions {
 
   def listAll(): Result = {
     Json(Map("running" -> Task.list(RUNNING), "queued" -> Task.list(QUEUED), "finished" -> Task.list(FINISHED)))
+  }
+
+  def status(id: ObjectId): Result = {
+    val task = Task.findOneByID(id) getOrElse (return NotFound("Could not find task with id " + id))
+    Json(
+      Map(
+      "totalItems" -> task.totalItems,
+      "processedItems" -> task.processedItems,
+      "percentage" -> ((task.processedItems.toDouble / task.totalItems) * 100).round
+    ))
   }
 
 }

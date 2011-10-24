@@ -31,7 +31,7 @@ object ThumbnailProcessor extends Processor with Thumbnail {
           for (s <- sizes) storeThumbnail(image, s)
           Task.incrementProcessedItems(task, 1)
         } catch {
-          case _ => error(task, "Error creating thumbnail for image '%s'".format(image.getAbsolutePath))
+          case t => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage))
         }
         info(task, "Created thumbnail for image '%s'".format(image.getAbsolutePath))
       }

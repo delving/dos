@@ -12,6 +12,7 @@ GET     /@dos/task/list                         dos.ui.Tasks.listAll
 GET     /@dos/task/list/queued                  dos.ui.Tasks.list(what:'queued')
 GET     /@dos/task/list/running                 dos.ui.Tasks.list(what:'running')
 GET     /@dos/task/list/finished                dos.ui.Tasks.list(what:'finished')
+GET     /@dos/task/status/{id}                  dos.ui.Tasks.status
 
 GET     /@dos/log/list/{taskId}                 dos.ui.Logs.list
 
@@ -29,7 +30,7 @@ GET        /thumbnail/cache                     dos.ImageCache.thumbnail
 # Image Display API
 GET        /file/image/{id}                     dos.ImageDisplay.displayImage
 GET        /thumbnail/{id}/{width}?             dos.ImageDisplay.displayThumbnail
-GET        /thumbnail/{<(.)*>id}                      dos.ImageDisplay.displayThumbnail
+GET        /thumbnail/{<(.)*>id}                dos.ImageDisplay.displayThumbnail
 
 
 
