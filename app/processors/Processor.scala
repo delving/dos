@@ -1,6 +1,6 @@
 package processors
 
-import util.Logger
+import util.Logging
 import models.dos.{Task}
 
 /**
@@ -8,7 +8,7 @@ import models.dos.{Task}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Processor extends Logger {
+trait Processor extends Logging {
 
   /**
    * Does its thing given a path and optional parameters. The path may or may not exist on the file system.

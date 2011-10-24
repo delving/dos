@@ -1,7 +1,7 @@
 package jobs {
 
 import models.dos.{TaskType, TaskState, Task}
-import util.Logger
+import util.Logging
 import play.jobs.{Every, Job}
 import processors.ThumbnailProcessor
 import java.util.Date
@@ -12,7 +12,7 @@ import java.util.Date
  */
 
 @Every("10s")
-class TaskQueueJob extends Job with Logger {
+class TaskQueueJob extends Job with Logging {
 
   override def doJob() {
 

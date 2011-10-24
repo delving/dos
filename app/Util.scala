@@ -7,7 +7,7 @@ import models.dos.{Log, LogLevel, Task}
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-trait Logger {
+trait Logging {
 
   def info(task: Task, message: String) {
     log(task, message, LogLevel.INFO)
