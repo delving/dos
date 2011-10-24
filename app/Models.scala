@@ -23,7 +23,11 @@ package object dos {
 
 package dos {
 
-case class Log(message: String, level: LogLevel = LogLevel.INFO, _id: ObjectId = new ObjectId, task_id: ObjectId, date: Date = new Date)
+case class Log(_id: ObjectId = new ObjectId,
+               task_id: ObjectId,
+               date: Date = new Date,
+               message: String,
+               level: LogLevel = LogLevel.INFO)
 
 object Log extends SalatDAO[Log, ObjectId](collection = logCollection)
 

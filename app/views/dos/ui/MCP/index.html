@@ -99,7 +99,7 @@
   $(document).ready(function() {
 
     var viewModel = {
-      watchedTask: ko.observable(),
+      activeTask: ko.observable(),
       running: ko.observableArray([]),
       queued: ko.observableArray([]),
       finished: ko.observableArray([]),
@@ -146,17 +146,33 @@
       viewModel.running(data.running);
       viewModel.queued(data.queued);
       viewModel.finished(data.finished);
-      viewModel.watchedTask(viewModel.running[0]);
 
-      if (data.running.length > 0) {
+      if (data.running.length > 0 && viewModel.activeTask() !== data.running[0]._id) {
+        var runningId = data.running[0]._id;
+        viewModel.activeTask(runningId);
+        viewModel.showLogs(runningId);
+
+        // log stream
+        $('#log').smartupdater({
+          url: '/@dos/log/list/' + runningId,
+          minTimeout: 1000
+        }, function(d) {
+          var data = $.parseJSON(d);
+          viewModel.logs.push(data.logs);
+        });
+
+        // progress
         $('#runningProgress').progressbar();
         $('#runningProgress').smartupdater({
           url: '/@dos/task/status/' + data.running[0]._id,
-          minTimeout: 1500,
+          minTimeout: 1000
         }, function(d) {
           var data = $.parseJSON(d);
           $('#runningProgress').progressbar('value', data.percentage);
         });
+      } else {
+        viewModel.showLogs(data.finished[data.finished.length - 1]._id);
+        $('#runningProgress').smartupdaterStop();
       }
     });
   });
