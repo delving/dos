@@ -37,11 +37,16 @@
 <hr/>
 
 <div id="footer">
-  <div id="tasks" style="float: left;" data-bind="template: 'taskListTemplate'"></div>
+  <div id="tasks" style="visibility: hidden;"></div>
+  <div style="float: left;">
+    <div data-bind="template: 'runningTasksTemplate'"></div>
+    <div data-bind="template: 'queuedTasksTemplate'"></div>
+    <div data-bind="template: 'finishedTasksTemplate'"></div>
+  </div>
   <div id="log" style="float: right;" data-bind="template: 'logTemplate'"></div>
 </div>
 
-<script type="text/html" id="taskListTemplate">
+<script type="text/html" id="runningTasksTemplate">
   <h3>Running task</h3>
   <table>
     <th>Da Task Path</th>
@@ -62,6 +67,8 @@
     </tr>
     {{/each}}
   </table>
+  </script>
+<script type="text/html" id="queuedTasksTemplate">
   <h3>Queued tasks</h3>
   <table>
     <th>Da Task Path</th>
@@ -77,6 +84,8 @@
     </tr>
     {{/each}}
   </table>
+</script>
+<script type="text/html" id="finishedTasksTemplate">
   <h3>Finished tasks</h3>
   <table>
     <th>Da Task Path</th>
@@ -146,7 +155,11 @@
       minTimeout: 2000
     }, function (d) {
       var data = $.parseJSON(d);
-      viewModel.running(data.running);
+
+      // TODO do this with a proper function
+      if(data.running.length !== viewModel.running().length || data.running.length > 0 && viewModel.running.length > 0 && data.running[0]._id !== viewModel.running()[0]._id) {
+        viewModel.running(data.running);
+      }
       viewModel.queued(data.queued);
       viewModel.finished(data.finished);
 
@@ -174,7 +187,6 @@
           minTimeout: 1500
         }, function(d) {
           var data = $.parseJSON(d);
-          // FIXME this will not work - the template refresh done by KO will kill the progress bar so we need to find another way here to do this
           $('#runningProgressCounter').progressbar('value', data.percentage);
         });
       } else if(data.running.length == 0 && viewModel.activeTask()) {
