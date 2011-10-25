@@ -25,8 +25,7 @@ object Tasks extends Controller with Extensions {
 
   def cancel(id: ObjectId): Result = {
     val task = Task.findOneByID(id) getOrElse (return NotFound("Could not find task with id " + id))
-    val updated = task.copy(state = CANCELLED)
-    Task.save(updated)
+    Task.cancel(task)
     Ok
   }
 

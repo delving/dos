@@ -52,6 +52,7 @@ case class Task(_id: ObjectId = new ObjectId,
 
   def pathAsFile = new File(path)
   def pathExists = new File(path).exists()
+  def isCancelled = taskCollection.findOne(MongoDBObject("_id" -> _id, "state.name" -> TaskState.CANCELLED.name)).isDefined
 }
 
 object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
@@ -65,6 +66,10 @@ object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
 
   def finish(task: Task) {
     Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.FINISHED.name, "finishedAt" -> new Date))
+  }
+
+  def cancel(task: Task) {
+    Task.update(MongoDBObject("_id" -> task._id), $set ("state.name" -> TaskState.CANCELLED.name, "finishedAt" -> new Date))
   }
 
   def setTotalItems(task: Task, total: Int) {

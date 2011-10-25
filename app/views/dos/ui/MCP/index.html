@@ -53,10 +53,11 @@
       <td data-bind="text: path"></td>
       <td data-bind="text: taskType.name"></td>
       <td>
+        <button data-bind="click: function() { cancel(_id); }">Cancel</button>
         <a href="#" data-bind="click: function() { showLogs(_id); }">Show logs</a>
       </td>
       <td>
-        <div id="runningProgress"></div>
+        <div id="runningProgress"><div id="runningProgressCounter"></div></div>
       </td>
     </tr>
     {{/each}}
@@ -152,29 +153,35 @@
       if (data.running.length > 0 && viewModel.activeTask() !== data.running[0]._id) {
         var runningId = data.running[0]._id;
         viewModel.activeTask(runningId);
-        viewModel.showLogs(runningId);
+        console.log("Init");
 
         // log stream
         $('#log').smartupdater({
           url: '/@dos/log/list/' + runningId,
-          minTimeout: 1000
+          minTimeout: 1500
         }, function(d) {
           var data = $.parseJSON(d);
-          viewModel.logs.push(data.logs);
+          $.each(data.logs, function(index, log) {
+            viewModel.logs.push(log);
+          });
+          $('#log').smartupdaterAlterUrl(false, {lastCount: viewModel.logs().length});
         });
 
         // progress
-        $('#runningProgress').progressbar();
+        $('#runningProgressCounter').progressbar();
         $('#runningProgress').smartupdater({
           url: '/@dos/task/status/' + data.running[0]._id,
-          minTimeout: 1000
+          minTimeout: 1500
         }, function(d) {
           var data = $.parseJSON(d);
-          $('#runningProgress').progressbar('value', data.percentage);
+          // FIXME this will not work - the template refresh done by KO will kill the progress bar so we need to find another way here to do this
+          $('#runningProgressCounter').progressbar('value', data.percentage);
         });
-      } else {
+      } else if(data.running.length == 0 && viewModel.activeTask()) {
         viewModel.showLogs(data.finished[data.finished.length - 1]._id);
         $('#runningProgress').smartupdaterStop();
+        $('#log').smartupdaterStop();
+        viewModel.activeTask(null);
       }
     });
   });

@@ -55,20 +55,18 @@ object PTIFTilingProcessor extends Processor {
 
       val images = p.listFiles().filter(f => isImage(f.getName))
 
-      images foreach {
-        i => {
-          info(task, "Making PTIF tile for image '%s'".format(i.getAbsolutePath))
+      for (i <- images; if (!task.isCancelled)) {
+        info(task, "Making PTIF tile for image '%s'".format(i.getAbsolutePath))
 
-          val targetFileName = if (i.getName.indexOf(".") > -1) i.getName.substring(0, i.getName.indexOf(".")) else i.getName
-          val targetFile: File = new File(outputPath, targetFileName + ".tif")
-          targetFile.createNewFile()
+        val targetFileName = if (i.getName.indexOf(".") > -1) i.getName.substring(0, i.getName.indexOf(".")) else i.getName
+        val targetFile: File = new File(outputPath, targetFileName + ".tif")
+        targetFile.createNewFile()
 
-          try {
-            val tileInfo = tiler.convert(i, targetFile)
-            info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels")
-          } catch {
-            case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage))
-          }
+        try {
+          val tileInfo = tiler.convert(i, targetFile)
+          info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels")
+        } catch {
+          case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage))
         }
       }
     }

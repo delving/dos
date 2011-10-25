@@ -36,7 +36,7 @@ object TIFFlatteningProcessor extends Processor {
 
     val images = task.pathAsFile.listFiles().filter(f => isImage(f.getName))
 
-    images foreach { i =>
+    for (i <- images; if (!task.isCancelled)) {
       val identifiyCmd = new ImageCommand(gmCommand, "identify")
       val identifyOp: IMOperation = new IMOperation
       identifyOp.addImage(i.getAbsolutePath)

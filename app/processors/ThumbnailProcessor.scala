@@ -27,8 +27,8 @@ object ThumbnailProcessor extends Processor with Thumbnail {
 
       Task.setTotalItems(task, images.size)
 
-      images foreach {
-        image => try {
+      for (image <- images; if (!task.isCancelled)) {
+        try {
           for (s <- sizes) storeThumbnail(image, s)
           Task.incrementProcessedItems(task, 1)
           info(task, "Created thumbnail for image '%s'".format(image.getAbsolutePath))
