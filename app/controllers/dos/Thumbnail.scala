@@ -15,13 +15,13 @@ import com.thebuzzmedia.imgscalr.Scalr
 
 trait Thumbnail {
 
-  @Util protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String]): Map[Int, Option[ObjectId]] = {
+  @Util protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
     thumbnailSizes.map {
       size => storeThumbnail(image.inputStream, image.filename, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get.toString))
     }
   }
 
-  @Util protected def storeThumbnail(imageStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, String] = Map.empty[String, String]): (Int, Option[ObjectId]) = {
+  @Util protected def storeThumbnail(imageStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, String] = Map.empty[String, String]): (Int, ObjectId) = {
     val thumbnailStream = createThumbnail(imageStream, width)
     val thumbnail = store.createFile(thumbnailStream)
     thumbnail.filename = filename
@@ -29,7 +29,7 @@ trait Thumbnail {
     thumbnail.put (THUMBNAIL_WIDTH_FIELD, width.asInstanceOf[AnyRef])
     params foreach { p => thumbnail.put(p._1, p._2)}
     thumbnail.save
-    (width, thumbnail._id)
+    (width, thumbnail._id.get)
   }
 
 

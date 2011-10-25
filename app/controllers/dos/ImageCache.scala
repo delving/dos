@@ -1,19 +1,15 @@
 package controllers.dos
 
-import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
 import com.mongodb.casbah.Implicits._
 import org.apache.log4j.Logger
 import java.util.Date
-import java.awt.image.BufferedImage
-import javax.imageio.ImageIO
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
+import java.io.InputStream
 import play.mvc.Http.Response
 import play.mvc.results.{NotFound, Result}
 import play.utils.Utils
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.Header
-import com.thebuzzmedia.imgscalr.Scalr
 import play.mvc.Controller
 
 /**

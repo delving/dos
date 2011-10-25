@@ -39,7 +39,7 @@ object ThumbnailProcessor extends Processor with Thumbnail {
     }
   }
 
-  @Util private def storeThumbnail(image: File, width: Int): Option[ObjectId] = {
+  @Util private def storeThumbnail(image: File, width: Int): ObjectId = {
     val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName
     storeThumbnail(new FileInputStream(image), image.getName, width, fileStore, Map(ORIGIN_PATH_FIELD -> image.getAbsolutePath, IMAGE_ID_FIELD -> imageName))._2
   }
