@@ -3,7 +3,7 @@ package jobs {
 import models.dos.{TaskType, TaskState, Task}
 import util.Logging
 import play.jobs.{Every, Job}
-import processors.{TIFFlatteningProcessor, PTIFTilingProcessor, ThumbnailProcessor}
+import processors.{ThumbnailDeletionProcessor, TIFFlatteningProcessor, PTIFTilingProcessor, ThumbnailCreationProcessor}
 
 /**
  *
@@ -21,7 +21,8 @@ class TaskQueueJob extends Job with Logging {
         Task.start(task)
         try {
           task.taskType match {
-            case TaskType.THUMBNAILS => ThumbnailProcessor.process(task, Map("sizes" -> controllers.dos.thumbnailSizes.values.toList))
+            case TaskType.THUMBNAILS_CREATE => ThumbnailCreationProcessor.process(task, Map("sizes" -> controllers.dos.thumbnailSizes.values.toList))
+            case TaskType.THUMBNAILS_DELETE => ThumbnailDeletionProcessor.process(task)
             case TaskType.FLATTEN => TIFFlatteningProcessor.process(task)
             case TaskType.TILES => PTIFTilingProcessor.process(task)
           }

@@ -18,7 +18,8 @@
     <tr>
       <td><a href="@{dos.ui.MCP.browse(file.path)}">${file.name}</a></td>
       <td>
-        <button data-bind="click: function() { addTask('${file.path}', 'thumbnails'); }">Make thumbnails</button>
+        <button data-bind="click: function() { addTask('${file.path}', 'createThumbnails'); }">Make thumbnails</button>
+        <button data-bind="click: function() { addTask('${file.path}', 'deleteThumbnails'); }">Remove thumbnails</button>
         <button data-bind="click: function() { addTask('${file.path}', 'flatten'); }">Flatten source TIFs</button>
         <button data-bind="click: function() { addTask('${file.path}', 'tiles'); }">Make tiles</button>
       </td>
@@ -32,6 +33,12 @@
     #{/else}
     #{/list}
   </table>
+  <div id="taskDetailsDialog" style="visibility: hidden;">
+      <label for="taskSpec">Spec (collection identifier)</label>
+      <input type="text" id="taskSpec" />
+      <label for="taskOrg">Organization identifier</label>
+      <input type="text" id="taskOrg" />
+  </div>
 </div>
 
 <hr/>
@@ -62,12 +69,14 @@
         <a href="#" data-bind="click: function() { showLogs(_id); }">Show logs</a>
       </td>
       <td>
-        <div id="runningProgress"><div id="runningProgressCounter"></div></div>
+        <div id="runningProgress">
+          <div id="runningProgressCounter"></div>
+        </div>
       </td>
     </tr>
     {{/each}}
   </table>
-  </script>
+</script>
 <script type="text/html" id="queuedTasksTemplate">
   <h3>Queued tasks</h3>
   <table>
@@ -116,16 +125,33 @@
       queued: ko.observableArray([]),
       finished: ko.observableArray([]),
       logs: ko.observableArray([]),
-      addTask: function(path, type) {
-        $.ajax({
-          url: '@{dos.ui.Tasks.add()}',
-          data: {
-            path: path,
-            taskType: type
-          },
-          type: 'PUT',
-          success: function(addedTask) {
-            viewModel.queued.push(addedTask);
+      addTask: function(path, type, params) {
+        $('#taskDetailsDialog').css('visibility', 'visible');
+        $('#taskDetailsDialog').dialog({
+          resizable: false,
+          modal: true,
+          buttons: {
+            "Add task": function() {
+              $.ajax({
+                url: '@{dos.ui.Tasks.add()}',
+                data: {
+                  path: path,
+                  taskType: type,
+                  params: {
+                    spec: $('#taskSpec').val(),
+                    org: $('#taskOrg').val()
+                  }
+                },
+                type: 'PUT',
+                success: function(addedTask) {
+                  viewModel.queued.push(addedTask);
+                }
+              });
+              $(this).dialog('close');
+            },
+            "Cancel": function() {
+              $(this).dialog('close');
+            }
           }
         });
       },
@@ -157,7 +183,7 @@
       var data = $.parseJSON(d);
 
       // TODO do this with a proper function
-      if(data.running.length !== viewModel.running().length || data.running.length > 0 && viewModel.running.length > 0 && data.running[0]._id !== viewModel.running()[0]._id) {
+      if (data.running.length !== viewModel.running().length || data.running.length > 0 && viewModel.running.length > 0 && data.running[0]._id !== viewModel.running()[0]._id) {
         viewModel.running(data.running);
       }
       viewModel.queued(data.queued);
@@ -189,7 +215,7 @@
           var data = $.parseJSON(d);
           $('#runningProgressCounter').progressbar('value', data.percentage);
         });
-      } else if(data.running.length == 0 && viewModel.activeTask()) {
+      } else if (data.running.length == 0 && viewModel.activeTask()) {
         viewModel.showLogs(data.finished[data.finished.length - 1]._id);
         $('#runningProgress').smartupdaterStop();
         $('#log').smartupdaterStop();

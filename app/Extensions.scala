@@ -7,10 +7,11 @@ import org.codehaus.jackson.map.module.SimpleModule
 import org.codehaus.jackson.{Version, JsonParser, JsonGenerator}
 import play.mvc._
 import play.mvc.Http.{Response, Request}
-import results.{RenderJson}
 import play.data.binding._
 import java.lang.reflect.{Type}
 import java.lang.annotation.Annotation
+import results.{Result, RenderJson}
+import play.Logger
 
 /**
  * This trait provides additional actions that can be used in controllers
@@ -27,6 +28,17 @@ trait Extensions {
       response.out.write(DoSJson.generate(data).getBytes(encoding))
     }
   }
+
+  def LoggedError(msg: String): Result = {
+    Logger.error(msg)
+    Error(msg)
+  }
+
+  def LoggedNotFound(msg: String): Result = {
+    Logger.error(msg)
+    NotFound(msg)
+  }
+
 }
 
 

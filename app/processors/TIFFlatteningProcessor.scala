@@ -17,7 +17,7 @@ object TIFFlatteningProcessor extends Processor {
 
   val FLATTENED_PREFIX: String = "FLATTENED_"
 
-  def process(task: Task, params: Map[String, AnyRef]) {
+  def process(task: Task, processorParams: Map[String, AnyRef]) {
     if(!task.pathExists) {
       error(task, "Cannot find directory '%s'".format(task.path))
       return

@@ -50,6 +50,7 @@ object LogLevel {
 case class Task(_id: ObjectId = new ObjectId,
                 path: String,
                 taskType: TaskType,
+                params: Map[String, String] = Map.empty[String, String],
                 queuedAt: Date = new Date,
                 startedAt: Option[Date] = None,
                 finishedAt: Option[Date] = None,
@@ -95,10 +96,11 @@ object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
 case class TaskType(name: String)
 
 object TaskType {
-  val THUMBNAILS = TaskType("thumbnails")
+  val THUMBNAILS_CREATE = TaskType("createThumbnails")
+  val THUMBNAILS_DELETE = TaskType("deleteThumbnails")
   val FLATTEN = TaskType("flatten")
   val TILES = TaskType("tiles")
-  val values = List(THUMBNAILS, FLATTEN, TILES)
+  val values = List(THUMBNAILS_CREATE, THUMBNAILS_DELETE, FLATTEN, TILES)
 
   def valueOf(what: String) = values find { _.name == what }
 }

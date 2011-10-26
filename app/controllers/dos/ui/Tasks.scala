@@ -3,9 +3,11 @@ package controllers.dos.ui
 import models.dos.{TaskType, TaskState, Task}
 import extensions.dos.Extensions
 import TaskState._
-import play.mvc.Controller
 import org.bson.types.ObjectId
 import play.mvc.results.Result
+import play.Logger
+import play.mvc.Controller
+import scala.collection.JavaConversions.asScalaMap
 
 /**
  *
@@ -15,16 +17,24 @@ import play.mvc.results.Result
 object Tasks extends Controller with Extensions {
 
   def add(path: String, taskType: String): Result = {
-    val tt = TaskType.valueOf(taskType) getOrElse (return Error("Invalid task type " + taskType))
-    val task = Task(path = path, taskType = tt)
+    val tt = TaskType.valueOf(taskType) getOrElse ({
+      return LoggedError("Invalid task type " + taskType)
+    })
+
+    // stoopid play...
+    val keyExtract = "params\\[([^\\]]*)\\]".r
+    val taskParams: Map[String, String] = asScalaMap[String, Array[String]](params.all()).filter(_._1.startsWith("params")).toMap[String, Array[String]].map((item) => (keyExtract.findFirstMatchIn(item._1).head.group(1), item._2.head))
+
+    val task = Task(path = path, taskType = tt, processorParams = taskParams)
+    Logger.info("Adding new task to queue: " + task.toString)
     Task.insert(task) match {
-      case None => Error("Could not create da task")
+      case None => LoggedError("Could not create da task")
       case Some(taskId) => Json(task.copy(_id = taskId))
     }
   }
 
   def cancel(id: ObjectId): Result = {
-    val task = Task.findOneByID(id) getOrElse (return NotFound("Could not find task with id " + id))
+    val task = Task.findOneByID(id) getOrElse (return LoggedNotFound("Could not find task with id " + id))
     Task.cancel(task)
     Ok
   }
@@ -43,7 +53,7 @@ object Tasks extends Controller with Extensions {
   }
 
   def status(id: ObjectId): Result = {
-    val task = Task.findOneByID(id) getOrElse (return NotFound("Could not find task with id " + id))
+    val task = Task.findOneByID(id) getOrElse (return LoggedNotFound("Could not find task with id " + id))
     Json(
       Map(
       "totalItems" -> task.totalItems,

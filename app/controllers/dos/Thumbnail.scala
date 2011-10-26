@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import com.thebuzzmedia.imgscalr.Scalr
+import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  *
@@ -21,7 +22,7 @@ trait Thumbnail {
     }
   }
 
-  @Util protected def storeThumbnail(imageStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, String] = Map.empty[String, String]): (Int, ObjectId) = {
+  @Util protected def storeThumbnail(imageStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
     val thumbnailStream = createThumbnail(imageStream, width)
     val thumbnail = store.createFile(thumbnailStream)
     thumbnail.filename = filename
@@ -32,8 +33,14 @@ trait Thumbnail {
     (width, thumbnail._id.get)
   }
 
+  @Util protected def deleteBatchImportThumbnails(path: String, spec: String, org: String, store: GridFS) {
+    val thumbs = store.find(MongoDBObject(ORIGIN_PATH_FIELD -> path.r, spec -> spec, org -> org))
+    thumbs foreach {
+      t => store.remove(t.getId.asInstanceOf[ObjectId])
+    }
+  }
 
-  def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
+  private def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
     val thumbnail: BufferedImage = resizeImage(sourceStream, thumbnailWidth, boundingBox)
     val os: ByteArrayOutputStream = new ByteArrayOutputStream()
     ImageIO.write(thumbnail, "jpg", os)

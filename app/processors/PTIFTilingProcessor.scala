@@ -14,7 +14,7 @@ import play.Play
 
 object PTIFTilingProcessor extends Processor {
 
-  def process(task: Task, params: Map[String, AnyRef]) {
+  def process(task: Task, processorParams: Map[String, AnyRef]) {
 
     // TODO warn / throw error if these ain't set
     val tilesOutputBasePath = new File(Play.configuration.getProperty("dos.tilesOutputBaseDir", "/tmp/tiles"))
