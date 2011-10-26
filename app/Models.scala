@@ -31,6 +31,9 @@ case class Log(_id: ObjectId = new ObjectId,
                task_id: ObjectId,
                date: Date = new Date,
                message: String,
+               taskType: TaskType, // saved here for redundancy
+               sourceItem: Option[String] = None,
+               resultItem: Option[String] = None, // file path or URL or ID to a single item that was processed, if applicable
                level: LogLevel = LogLevel.INFO)
 
 object Log extends SalatDAO[Log, ObjectId](collection = logCollection)
@@ -42,9 +45,7 @@ object LogLevel {
   val ERROR = LogLevel("error")
   val values = List(INFO, ERROR)
 
-  def valueOf(what: String) = values find {
-    _.name == what
-  }
+  def valueOf(what: String) = values find { _.name == what }
 }
 
 case class Task(_id: ObjectId = new ObjectId,

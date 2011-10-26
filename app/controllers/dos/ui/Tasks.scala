@@ -25,7 +25,7 @@ object Tasks extends Controller with Extensions {
     val keyExtract = "params\\[([^\\]]*)\\]".r
     val taskParams: Map[String, String] = asScalaMap[String, Array[String]](params.all()).filter(_._1.startsWith("params")).toMap[String, Array[String]].map((item) => (keyExtract.findFirstMatchIn(item._1).head.group(1), item._2.head))
 
-    val task = Task(path = path, taskType = tt, processorParams = taskParams)
+    val task = Task(path = path, taskType = tt, params = taskParams)
     Logger.info("Adding new task to queue: " + task.toString)
     Task.insert(task) match {
       case None => LoggedError("Could not create da task")

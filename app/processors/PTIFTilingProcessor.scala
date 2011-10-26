@@ -36,7 +36,24 @@ object PTIFTilingProcessor extends Processor {
       error(task, "Path '%s' does not exist or is unreachable".format(task.path))
     } else {
 
-      val outputPath = new File(tilesOutputBasePath, p.getName)
+      val spec = task.params.get("spec").getOrElse({
+        error(task, "No spec passed for task " + task)
+        return
+      })
+
+      val org = task.params.get("org").getOrElse({
+        error(task, "No org passed for task " + task)
+        return
+      })
+
+      val orgPath = new File(tilesOutputBasePath, org)
+      if(!orgPath.exists() && !orgPath.mkdir()) {
+        error(task, "Could not create tile org path " + orgPath.getAbsolutePath, Some(orgPath.getAbsolutePath))
+        return
+      }
+
+      // output path = tiles base dir + task org name + task spec name
+      val outputPath = new File(orgPath, spec)
       if (outputPath.exists() && outputPath.isDirectory) {
         error(task, "Output directory '%s' already exists, delete it first if you want to re-tile".format(outputPath.getAbsolutePath))
         return
@@ -56,17 +73,15 @@ object PTIFTilingProcessor extends Processor {
       val images = p.listFiles().filter(f => isImage(f.getName))
 
       for (i <- images; if (!task.isCancelled)) {
-        info(task, "Making PTIF tile for image '%s'".format(i.getAbsolutePath))
-
         val targetFileName = if (i.getName.indexOf(".") > -1) i.getName.substring(0, i.getName.indexOf(".")) else i.getName
         val targetFile: File = new File(outputPath, targetFileName + ".tif")
         targetFile.createNewFile()
 
         try {
           val tileInfo = tiler.convert(i, targetFile)
-          info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels")
+          info(task, "Generated PTIF for file " + i.getName + ": " + tileInfo.getImageWidth + "x" + tileInfo.getImageHeight + ", " + tileInfo.getZoomLevels + " zoom levels", Some(i.getAbsolutePath), Some(targetFile.getAbsolutePath))
         } catch {
-          case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage))
+          case t => error(task, "Could not create tile for image '%s': %s".format(i.getAbsolutePath, t.getMessage), Some(i.getAbsolutePath))
         }
       }
     }

@@ -29,7 +29,6 @@ object ThumbnailCreationProcessor extends Processor with Thumbnail {
         return
       })
 
-
       val sizes = processorParams("sizes").asInstanceOf[List[Int]]
 
       info(task, "Starting to generate thumbnails for path '%s' for sizes %s".format(task.path, sizes.mkString(", ")))
@@ -40,11 +39,13 @@ object ThumbnailCreationProcessor extends Processor with Thumbnail {
 
       for (image <- images; if (!task.isCancelled)) {
         try {
-          for (s <- sizes) createThumbnailFromFile(image, s, task._id, org, spec)
+          for (s <- sizes) {
+            val id = createThumbnailFromFile(image, s, task._id, org, spec)
+            info(task, "Created thumbnail of size '%s' for image '%s'".format(s, image.getAbsolutePath), Some(image.getAbsolutePath), Some(id.toString))
+          }
           Task.incrementProcessedItems(task, 1)
-          info(task, "Created thumbnail for image '%s'".format(image.getAbsolutePath))
         } catch {
-          case t => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage))
+          case t => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage), Some(image.getAbsolutePath))
         }
       }
     }

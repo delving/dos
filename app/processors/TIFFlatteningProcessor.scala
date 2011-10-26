@@ -77,10 +77,10 @@ object TIFFlatteningProcessor extends Processor {
         val flattened = new File(i.getParentFile, FLATTENED_PREFIX + i.getName)
         if(flattened.exists()) {
           i.renameTo(new File(oldDir, i.getName))
-          flattened.renameTo(new File(i.getParentFile, i.getName))
-          info(task, """Image flattened succesfully, moved original to directory "_original"""")
+          flattened.renameTo(new File(oldDir.getParentFile, i.getName))
+          info(task, """Image flattened succesfully, moved original to directory "_original"""", Some(i.getAbsolutePath), Some(flattened.getAbsolutePath))
         } else {
-          error(task, "Failed to convert the multi-layer image '%s' to a single-layer image".format(i.getAbsolutePath))
+          error(task, "Failed to convert the multi-layer image '%s' to a single-layer image".format(i.getAbsolutePath), Some(i.getAbsolutePath))
         }
       }
     }
