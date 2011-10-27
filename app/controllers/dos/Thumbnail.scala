@@ -18,7 +18,7 @@ trait Thumbnail {
 
   @Util protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
     thumbnailSizes.map {
-      size => storeThumbnail(image.inputStream, image.filename, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get.toString))
+      size => storeThumbnail(image.inputStream, image.filename, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
     }
   }
 
