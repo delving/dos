@@ -1,226 +1,294 @@
 #{extends '/DoS/ui/MCP/main.html' /}
 #{set title:'Delving object Server' /}
 
-<div id="header">
-  <form method="GET" action="/@dos/browse">
-    <label for="path">Path</label>
-    <input id="path" name="path" type="text" value=${params.path}/>
-    <input type="submit" value="Refresh"/>
-  </form>
+<h1>Delving Object Server</h1>
+
+<div class="header">
+    <div class="mod">
+        <form method="GET" action="/@dos/browse">
+            <label for="path" class="contrast">Set the path to your images:</label>
+            <input id="path" name="path" type="text" value="${params.path}" class="path"/>
+            <button type="submit" class="button">
+                Refresh
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="main">
+
+    <div class="data-grid mod">
+        <table>
+            <thead>
+            <tr>
+                <th>Directory</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            #{list files, as:'file'}
+            #{if file.isDir}
+            <tr>
+                <td><a href="@{dos.ui.MCP.browse(file.path)}">${file.name}</a></td>
+                <td>
+                    <button data-bind="click: function() { addTask('${file.path}', 'createThumbnails'); }" class="button">Make thumbnails</button>
+                    <button data-bind="click: function() { addTask('${file.path}', 'deleteThumbnails'); }" class="button">Remove thumbnails</button>
+                    <button data-bind="click: function() { addTask('${file.path}', 'flatten'); }" class="button">Flatten source TIFs</button>
+                    <button data-bind="click: function() { addTask('${file.path}', 'tiles'); }" class="button">Make tiles</button>
+                </td>
+            </tr>
+            #{/if}
+            #{/list}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mod viewer">
+        %{ def counter = 1 }%
+        #{list files, as:'file'}
+        #{if !file.isDir}
+
+        #{if counter == 1}
+        <div class="line">
+            #{/if}
+
+            <div class="unit size1of5 ${counter == 5 ? 'lastUnit' : ''}">
+                <div class="mod simple">
+                    <div class="media">
+                        <img src="/thumbnail/${file.id()}" width="80" height="80" class="img"/>
+
+                        <div class="bd">${file.name}</div>
+                    </div>
+                </div>
+            </div>
+
+            %{ counter++ }%
+            #{if counter > 5 || i_isLast }
+        </div>
+        <!-- end line -->
+        %{ counter = 1 }%
+        #{/if}
+
+        #{/if}
+        #{/list}
+    </div>
+
+    <div id="taskDetailsDialog" style="visibility: hidden;">
+        <label for="taskSpec">Spec (collection identifier)</label>
+        <input type="text" id="taskSpec"/>
+        <label for="taskOrg">Organization identifier</label>
+        <input type="text" id="taskOrg"/>
+    </div>
 </div>
 
 <hr/>
 
-<div id="browser">
-  <table>
-    #{list files, as:'file'}
-    #{if file.isDir}
-    <tr>
-      <td><a href="@{dos.ui.MCP.browse(file.path)}">${file.name}</a></td>
-      <td>
-        <button data-bind="click: function() { addTask('${file.path}', 'createThumbnails'); }">Make thumbnails</button>
-        <button data-bind="click: function() { addTask('${file.path}', 'deleteThumbnails'); }">Remove thumbnails</button>
-        <button data-bind="click: function() { addTask('${file.path}', 'flatten'); }">Flatten source TIFs</button>
-        <button data-bind="click: function() { addTask('${file.path}', 'tiles'); }">Make tiles</button>
-      </td>
-    </tr>
-    #{/if}
-    #{else}
-    <tr>
-      <td><img src="/thumbnail/${file.id()}" width="80" height="80"/></td>
-      <td>${file.name}</td>
-    </tr>
-    #{/else}
-    #{/list}
-  </table>
-  <div id="taskDetailsDialog" style="visibility: hidden;">
-      <label for="taskSpec">Spec (collection identifier)</label>
-      <input type="text" id="taskSpec" />
-      <label for="taskOrg">Organization identifier</label>
-      <input type="text" id="taskOrg" />
-  </div>
-</div>
+<div id="footer mod">
+    <div id="tasks" style="visibility: hidden;"></div>
+    <div class="line">
+        <div class="unit size1of3">
+            <div data-bind="template: 'queuedTasksTemplate'"></div>
+        </div>
 
-<hr/>
-
-<div id="footer">
-  <div id="tasks" style="visibility: hidden;"></div>
-  <div style="float: left;">
-    <div data-bind="template: 'runningTasksTemplate'"></div>
-    <div data-bind="template: 'queuedTasksTemplate'"></div>
-    <div data-bind="template: 'finishedTasksTemplate'"></div>
-  </div>
-  <div id="log" style="float: right;" data-bind="template: 'logTemplate'"></div>
+        <div class="unit size1of3">
+            <div data-bind="template: 'runningTasksTemplate'"></div>
+        </div>
+        <div class="unit size1of3 unitLast">
+            <div data-bind="template: 'finishedTasksTemplate'"></div>
+        </div>
+    </div>
+    <div id="log" style="float: right;" data-bind="template: 'logTemplate'"></div>
 </div>
 
 <script type="text/html" id="runningTasksTemplate">
-  <h3>Running task</h3>
-  <table>
-    <th>Da Task Path</th>
-    <th>Da Task Type</th>
-    <th>Da Actions</th>
-    <th>Progress</th>
-    {{each running()}}
-    <tr>
-      <td data-bind="text: path"></td>
-      <td data-bind="text: taskType.name"></td>
-      <td>
-        <button data-bind="click: function() { cancel(_id); }">Cancel</button>
-        <a href="#" data-bind="click: function() { showLogs(_id); }">Show logs</a>
-      </td>
-      <td>
-        <div id="runningProgress">
-          <div id="runningProgressCounter"></div>
-        </div>
-      </td>
-    </tr>
-    {{/each}}
-  </table>
+    <h3 class="firm">Running task</h3>
+
+    <div class="mod data-grid">
+        <table>
+            <thead>
+            <th>Task path</th>
+            <th>Task type</th>
+            <th>Actions</th>
+            </thead>
+            <tbody>
+            {{each running()}}
+            <tr>
+                <td data-bind="text: path"></td>
+                <td data-bind="text: taskType.name"></td>
+                <td>
+                    <button class="actiton" data-bind="click: function() { cancel(_id); }">Cancel</button>
+                    <a href="#" class="button" data-bind="click: function() { showLogs(_id); }">Show logs</a>
+                </td>
+                <td>
+                    <div id="runningProgress">
+                        <div id="runningProgressCounter"></div>
+                    </div>
+                </td>
+            </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
 </script>
 <script type="text/html" id="queuedTasksTemplate">
-  <h3>Queued tasks</h3>
-  <table>
-    <th>Da Task Path</th>
-    <th>Da Task Type</th>
-    <th>Da Actions</th>
-    {{each queued()}}
-    <tr>
-      <td data-bind="text: path"></td>
-      <td data-bind="text: taskType.name"></td>
-      <td>
-        <button data-bind="click: function() { cancel(_id); }">Cancel</button>
-      </td>
-    </tr>
-    {{/each}}
-  </table>
+    <h3 class="negative">Queued tasks</h3>
+
+    <div class="mod data-grid">
+        <table>
+            <thead>
+            <th>Task path</th>
+            <th>Task type</th>
+            <th>Actions</th>
+            </thead>
+            <tbody>
+            {{each queued()}}
+
+            <tr>
+                <td data-bind="text: path"></td>
+                <td data-bind="text: taskType.name"></td>
+                <td>
+                    <button class="action" data-bind="click: function() { cancel(_id); }">Cancel</button>
+                </td>
+            </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
 </script>
 <script type="text/html" id="finishedTasksTemplate">
-  <h3>Finished tasks</h3>
-  <table>
-    <th>Da Task Path</th>
-    <th>Da Task Type</th>
-    <th>Da Actions</th>
-    {{each finished()}}
-    <tr>
-      <td data-bind="text: path"></td>
-      <td data-bind="text: taskType.name"></td>
-      <td><a href="#" data-bind="click: function() { showLogs(_id); }">Show logs</a></td>
-    </tr>
-    {{/each}}
-  </table>
+    <h3 class="positive">Finished tasks</h3>
+
+    <div class="mod data-grid">
+        <table>
+            <thead>
+            <th>Task path</th>
+            <th>Task type</th>
+            <th>Actions</th>
+            </thead>
+            <tbody>
+            {{each finished()}}
+            <tr>
+                <td data-bind="text: path"></td>
+                <td data-bind="text: taskType.name"></td>
+                <td><a class="button" href="#" data-bind="click: function() { showLogs(_id); }">Show logs</a></td>
+            </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
 </script>
 
 <script type="text/html" id="logTemplate">
-  {{each logs()}}
-  <div data-bind="text: message"></div>
-  {{/each}}
+    {{each logs()}}
+    <div data-bind="text: message"></div>
+    {{/each}}
 </script>
 
 <script type="text/javascript">
-  $(document).ready(function() {
+    $(document).ready(function() {
 
-    var viewModel = {
-      activeTask: ko.observable(),
-      running: ko.observableArray([]),
-      queued: ko.observableArray([]),
-      finished: ko.observableArray([]),
-      logs: ko.observableArray([]),
-      addTask: function(path, type, params) {
-        $('#taskDetailsDialog').css('visibility', 'visible');
-        $('#taskDetailsDialog').dialog({
-          resizable: false,
-          modal: true,
-          buttons: {
-            "Add task": function() {
-              $.ajax({
-                url: '@{dos.ui.Tasks.add()}',
-                data: {
-                  path: path,
-                  taskType: type,
-                  params: {
-                    collectionId: $('#taskSpec').val(),
-                    orgId: $('#taskOrg').val()
-                  }
-                },
-                type: 'PUT',
-                success: function(addedTask) {
-                  viewModel.queued.push(addedTask);
-                }
-              });
-              $(this).dialog('close');
+        var viewModel = {
+            activeTask: ko.observable(),
+            running: ko.observableArray([]),
+            queued: ko.observableArray([]),
+            finished: ko.observableArray([]),
+            logs: ko.observableArray([]),
+            addTask: function(path, type, params) {
+                $('#taskDetailsDialog').css('visibility', 'visible');
+                $('#taskDetailsDialog').dialog({
+                    resizable: false,
+                    modal: true,
+                    buttons: {
+                        "Add task": function() {
+                            $.ajax({
+                                url: '@{dos.ui.Tasks.add()}',
+                                data: {
+                                    path: path,
+                                    taskType: type,
+                                    params: {
+                                        collectionId: $('#taskSpec').val(),
+                                        orgId: $('#taskOrg').val()
+                                    }
+                                },
+                                type: 'PUT',
+                                success: function(addedTask) {
+                                    viewModel.queued.push(addedTask);
+                                }
+                            });
+                            $(this).dialog('close');
+                        },
+                        "Cancel": function() {
+                            $(this).dialog('close');
+                        }
+                    }
+                });
             },
-            "Cancel": function() {
-              $(this).dialog('close');
+            cancel: function(id) {
+                $.ajax({
+                    url: '/@dos/task/cancel',
+                    data: {id: id},
+                    type: 'DELETE',
+                    success: function() {
+                        viewModel.queued.remove(function(item) {
+                            return item._id == id;
+                        });
+                    }
+                });
+            },
+            showLogs: function(id) {
+                $.get('/@dos/log/list/' + id, function(data) {
+                    viewModel.logs(data.logs);
+                });
             }
-          }
+        };
+
+        ko.applyBindings(viewModel);
+
+        $('#tasks').smartupdater({
+            url : '/@dos/task/list',
+            minTimeout: 2000
+        }, function (d) {
+            var data = $.parseJSON(d);
+
+            // TODO do this with a proper function
+            if (data.running.length !== viewModel.running().length || data.running.length > 0 && viewModel.running.length > 0 && data.running[0]._id !== viewModel.running()[0]._id) {
+                viewModel.running(data.running);
+            }
+            viewModel.queued(data.queued);
+            viewModel.finished(data.finished);
+
+            if (data.running.length > 0 && viewModel.activeTask() !== data.running[0]._id) {
+                var runningId = data.running[0]._id;
+                viewModel.activeTask(runningId);
+                console.log("Init");
+
+                // log stream
+                $('#log').smartupdater({
+                    url: '/@dos/log/list/' + runningId,
+                    minTimeout: 1500
+                }, function(d) {
+                    var data = $.parseJSON(d);
+                    $.each(data.logs, function(index, log) {
+                        viewModel.logs.push(log);
+                    });
+                    $('#log').smartupdaterAlterUrl(false, {lastCount: viewModel.logs().length});
+                });
+
+                // progress
+                $('#runningProgressCounter').progressbar();
+                $('#runningProgress').smartupdater({
+                    url: '/@dos/task/status/' + data.running[0]._id,
+                    minTimeout: 1500
+                }, function(d) {
+                    var data = $.parseJSON(d);
+                    $('#runningProgressCounter').progressbar('value', data.percentage);
+                });
+            } else if (data.running.length == 0 && viewModel.activeTask()) {
+                viewModel.showLogs(data.finished[data.finished.length - 1]._id);
+                $('#runningProgress').smartupdaterStop();
+                $('#log').smartupdaterStop();
+                viewModel.activeTask(null);
+            }
         });
-      },
-      cancel: function(id) {
-        $.ajax({
-          url: '/@dos/task/cancel',
-          data: {id: id},
-          type: 'DELETE',
-          success: function() {
-            viewModel.queued.remove(function(item) {
-              return item._id == id;
-            });
-          }
-        });
-      },
-      showLogs: function(id) {
-        $.get('/@dos/log/list/' + id, function(data) {
-          viewModel.logs(data.logs);
-        });
-      }
-    };
-
-    ko.applyBindings(viewModel);
-
-    $('#tasks').smartupdater({
-      url : '/@dos/task/list',
-      minTimeout: 2000
-    }, function (d) {
-      var data = $.parseJSON(d);
-
-      // TODO do this with a proper function
-      if (data.running.length !== viewModel.running().length || data.running.length > 0 && viewModel.running.length > 0 && data.running[0]._id !== viewModel.running()[0]._id) {
-        viewModel.running(data.running);
-      }
-      viewModel.queued(data.queued);
-      viewModel.finished(data.finished);
-
-      if (data.running.length > 0 && viewModel.activeTask() !== data.running[0]._id) {
-        var runningId = data.running[0]._id;
-        viewModel.activeTask(runningId);
-        console.log("Init");
-
-        // log stream
-        $('#log').smartupdater({
-          url: '/@dos/log/list/' + runningId,
-          minTimeout: 1500
-        }, function(d) {
-          var data = $.parseJSON(d);
-          $.each(data.logs, function(index, log) {
-            viewModel.logs.push(log);
-          });
-          $('#log').smartupdaterAlterUrl(false, {lastCount: viewModel.logs().length});
-        });
-
-        // progress
-        $('#runningProgressCounter').progressbar();
-        $('#runningProgress').smartupdater({
-          url: '/@dos/task/status/' + data.running[0]._id,
-          minTimeout: 1500
-        }, function(d) {
-          var data = $.parseJSON(d);
-          $('#runningProgressCounter').progressbar('value', data.percentage);
-        });
-      } else if (data.running.length == 0 && viewModel.activeTask()) {
-        viewModel.showLogs(data.finished[data.finished.length - 1]._id);
-        $('#runningProgress').smartupdaterStop();
-        $('#log').smartupdaterStop();
-        viewModel.activeTask(null);
-      }
     });
-  });
 </script>
