@@ -24,6 +24,7 @@ repositories:
         root: "http://scala-tools.org/repo-releases/"
         contains:
             - com.mongodb.casbah.*
+            - org.scalaj.*
     - novus:
         type: iBiblio
         root: "http://repo.novus.com/snapshots/"
