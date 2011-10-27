@@ -6,7 +6,6 @@ import collection.JavaConversions._
 import com.mongodb.gridfs.GridFSFile
 import java.util.List
 import play.data.Upload
-import com.mongodb.casbah.gridfs.GridFSDBFile
 import play.mvc.{Controller, Util}
 import org.bson.types.ObjectId
 import extensions.dos.Extensions
