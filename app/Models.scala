@@ -64,6 +64,9 @@ case class Task(_id: ObjectId = new ObjectId,
   def pathExists = new File(path).exists()
 
   def isCancelled = taskCollection.findOne(MongoDBObject("_id" -> _id, "state.name" -> TaskState.CANCELLED.name)).isDefined
+
+  override def toString = "Task[%s] path: %s, params: %s".format(_id, path, params.toString)
+
 }
 
 object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
@@ -92,6 +95,7 @@ object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
   def incrementProcessedItems(task: Task, amount: Int) {
     Task.update(MongoDBObject("_id" -> task._id), $inc("processedItems" -> amount))
   }
+
 }
 
 case class TaskType(name: String)
