@@ -33,6 +33,9 @@ package object dos {
   val IMAGE_ID_FIELD = "file_id" // identifier (mostly file name without extension) of an image, or of a thumbnail (to refer to the parent image)
   val ORIGIN_PATH_FIELD = "origin_path" // path from where this thumbnail has been ingested
 
+  val ORGANIZATION_IDENTIFIER_FIELD = "orgId"
+  val COLLECTION_IDENTIFIER_FIELD = "collectionId"
+
   val TASK_ID = "task_id" // mongo id of the task that led to the creation of this thing
 
 }

@@ -15,10 +15,10 @@ object ThumbnailDeletionProcessor extends Processor with Thumbnail {
     if (!p.exists()) {
       error(task, "Path '%s' does not exist or is unreachable".format(task.path))
     } else {
-      if(!task.params.contains("spec") || !task.params.contains("org")) {
+      if(!task.params.contains(controllers.dos.COLLECTION_IDENTIFIER_FIELD) || !task.params.contains(controllers.dos.ORGANIZATION_IDENTIFIER_FIELD)) {
         error(task, "No spec or organisation provided")
       } else {
-        deleteBatchImportThumbnails(task.path, task.params("spec").toString, task.params("org").toString, controllers.dos.fileStore)
+        deleteBatchImportThumbnails(task.path, task.params(controllers.dos.COLLECTION_IDENTIFIER_FIELD).toString, task.params(controllers.dos.ORGANIZATION_IDENTIFIER_FIELD).toString, controllers.dos.fileStore)
       }
     }
   }

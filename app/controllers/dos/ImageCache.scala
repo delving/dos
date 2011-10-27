@@ -38,7 +38,7 @@ class ImageCacheService extends HTTPClient with Thumbnail {
       val isAvailable = checkOrInsert(sanitizeUrl(url), response)
       isAvailable match {
         case false => new NotFound(url)
-        case true => ImageDisplay.renderImage(url, thumbnail, ImageDisplay.thumbnailWidth(thumbnailWidth), imageCacheStore)
+        case true => ImageDisplay.renderImage(id = url, thumbnail = thumbnail, thumbnailWidth = ImageDisplay.thumbnailWidth(thumbnailWidth), store = imageCacheStore)
       }
 
     } catch {

@@ -28,9 +28,11 @@ GET        /image/cache                         dos.ImageCache.image
 GET        /thumbnail/cache                     dos.ImageCache.thumbnail
 
 # Image Display API
-GET        /file/image/{id}                     dos.ImageDisplay.displayImage
-GET        /thumbnail/{id}/{width}?             dos.ImageDisplay.displayThumbnail
-GET        /thumbnail/{<(.)*>id}                dos.ImageDisplay.displayThumbnail
+GET        /file/image/{id}                                  dos.ImageDisplay.displayImage
+GET        /thumbnail/{orgId}/{collectionId}/{id}/{width}?   dos.ImageDisplay.displayThumbnail
+GET        /thumbnail/{orgId}/{collectionId}/{<(.)*>id}      dos.ImageDisplay.displayThumbnail
+GET        /thumbnail/{id}/{width}?                          dos.ImageDisplay.displayThumbnail
+GET        /thumbnail/{<(.)*>id}                             dos.ImageDisplay.displayThumbnail
 
 
 

@@ -7,6 +7,7 @@ import org.bson.types.ObjectId
 import com.mongodb.gridfs.GridFSDBFile
 import play.mvc.results.{RenderBinary, Result}
 import com.mongodb.casbah.gridfs.GridFS
+import play.Logger
 
 /**
  *
@@ -20,12 +21,12 @@ object ImageDisplay extends Controller {
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, width: String = ""): Result = renderImage(id, true, thumbnailWidth(width))
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: String = ""): Result = renderImage(id = id, thumbnail = true, orgId = orgId, collectionId = collectionId, thumbnailWidth = thumbnailWidth(width))
 
   /**
    * Display an image given an ID
    */
-  def displayImage(id: String): Result = renderImage(id, false)
+  def displayImage(id: String): Result = renderImage(id = id, thumbnail = false)
 
 
   // ~~ public Scala API
@@ -35,16 +36,28 @@ object ImageDisplay extends Controller {
 
   // ~~ PRIVATE
 
-  @Util private[dos] def renderImage(id: String, thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH, store: GridFS = fileStore): Result = {
+  @Util private[dos] def renderImage(id: String, orgId: String = "", collectionId: String = "", thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH, store: GridFS = fileStore): Result = {
 
-    val (field, oid) = if (ObjectId.isValid(id)) {
-      (if (thumbnail) THUMBNAIL_ITEM_POINTER_FIELD else IMAGE_ITEM_POINTER_FIELD, new ObjectId(id))
+    val baseQuery: MongoDBObject = if (ObjectId.isValid(id)) {
+      val f = if (thumbnail) THUMBNAIL_ITEM_POINTER_FIELD else IMAGE_ITEM_POINTER_FIELD
+      MongoDBObject(f -> new ObjectId(id))
     } else {
-      // string identifier - for e.g. ingested images
-      (IMAGE_ID_FIELD, id)
+      // we have a string identifier - from ingested images
+      // in order to resolve these we want:
+      // - the organization the image belongs to
+      // - the collection identifier (spec) the image belongs to
+      // - the image identifier (file name minus file extension)
+
+      val idIsUrl = id.startsWith("http://")
+      if(!idIsUrl && (orgId == null || orgId.isEmpty))
+        Logger.warn("Attempting to display image with string identifier without orgId")
+      if(!idIsUrl && (collectionId == null || collectionId.isEmpty))
+        Logger.warn("Attempting to display image with string identifier without collectionId")
+
+      MongoDBObject(IMAGE_ID_FIELD -> id, ORGANIZATION_IDENTIFIER_FIELD -> orgId, COLLECTION_IDENTIFIER_FIELD -> collectionId)
     }
 
-    val query = if (thumbnail) MongoDBObject(field -> oid, THUMBNAIL_WIDTH_FIELD -> thumbnailWidth) else MongoDBObject(field -> oid)
+    val query: MongoDBObject = if (thumbnail) (baseQuery ++ MongoDBObject(THUMBNAIL_WIDTH_FIELD -> thumbnailWidth)) else baseQuery
 
     val image: Option[GridFSDBFile] = store.findOne(query) match {
       case Some(file) => {
@@ -53,7 +66,7 @@ object ImageDisplay extends Controller {
       }
       case None if (thumbnail) => {
         // try to find the next fitting size
-        store.find(MongoDBObject(field -> oid)).sortWith((a, b) => a.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int] > b.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).headOption match {
+        store.find(baseQuery).sortWith((a, b) => a.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int] > b.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).headOption match {
           case Some(t) => Some(t)
           case None => return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
         }

@@ -5,7 +5,6 @@ import play.mvc.Util
 import org.bson.types.ObjectId
 import controllers.dos._
 import java.io.{FileInputStream, File}
-import play.Logger
 
 /**
  *
@@ -20,11 +19,11 @@ object ThumbnailCreationProcessor extends Processor with Thumbnail {
       error(task, "Path '%s' does not exist or is unreachable".format(task.path))
     } else {
 
-      val spec = task.params.get("spec").getOrElse({
+      val collectionId = task.params.get(controllers.dos.COLLECTION_IDENTIFIER_FIELD).getOrElse({
         error(task, "No spec passed for task " + task)
         return
       })
-      val org = task.params.get("org").getOrElse({
+      val orgId = task.params.get(controllers.dos.ORGANIZATION_IDENTIFIER_FIELD).getOrElse({
         error(task, "No org passed for task " + task)
         return
       })
@@ -40,7 +39,7 @@ object ThumbnailCreationProcessor extends Processor with Thumbnail {
       for (image <- images; if (!task.isCancelled)) {
         try {
           for (s <- sizes) {
-            val id = createThumbnailFromFile(image, s, task._id, org, spec)
+            val id = createThumbnailFromFile(image, s, task._id, orgId, collectionId)
             info(task, "Created thumbnail of size '%s' for image '%s'".format(s, image.getAbsolutePath), Some(image.getAbsolutePath), Some(id.toString))
           }
           Task.incrementProcessedItems(task, 1)
@@ -51,14 +50,14 @@ object ThumbnailCreationProcessor extends Processor with Thumbnail {
     }
   }
 
-  @Util private def createThumbnailFromFile(image: File, width: Int, taskId: ObjectId, org: String, spec: String): ObjectId = {
+  @Util private def createThumbnailFromFile(image: File, width: Int, taskId: ObjectId, orgId: String, collectionId: String): ObjectId = {
     val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName
     storeThumbnail(new FileInputStream(image), image.getName, width, fileStore, Map(
       ORIGIN_PATH_FIELD -> image.getAbsolutePath,
       IMAGE_ID_FIELD -> imageName,
       TASK_ID -> taskId,
-      "org" -> org,
-      "spec" -> spec
+      ORGANIZATION_IDENTIFIER_FIELD -> orgId,
+      COLLECTION_IDENTIFIER_FIELD -> collectionId
     ))._2
   }
 

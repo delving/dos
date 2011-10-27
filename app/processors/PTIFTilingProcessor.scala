@@ -36,24 +36,24 @@ object PTIFTilingProcessor extends Processor {
       error(task, "Path '%s' does not exist or is unreachable".format(task.path))
     } else {
 
-      val spec = task.params.get("spec").getOrElse({
+      val collectionId = task.params.get(controllers.dos.COLLECTION_IDENTIFIER_FIELD).getOrElse({
         error(task, "No spec passed for task " + task)
         return
       })
 
-      val org = task.params.get("org").getOrElse({
+      val orgId = task.params.get(controllers.dos.ORGANIZATION_IDENTIFIER_FIELD).getOrElse({
         error(task, "No org passed for task " + task)
         return
       })
 
-      val orgPath = new File(tilesOutputBasePath, org)
+      val orgPath = new File(tilesOutputBasePath, orgId)
       if(!orgPath.exists() && !orgPath.mkdir()) {
         error(task, "Could not create tile org path " + orgPath.getAbsolutePath, Some(orgPath.getAbsolutePath))
         return
       }
 
       // output path = tiles base dir + task org name + task spec name
-      val outputPath = new File(orgPath, spec)
+      val outputPath = new File(orgPath, collectionId)
       if (outputPath.exists() && outputPath.isDirectory) {
         error(task, "Output directory '%s' already exists, delete it first if you want to re-tile".format(outputPath.getAbsolutePath))
         return

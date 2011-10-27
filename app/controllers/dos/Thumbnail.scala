@@ -33,8 +33,8 @@ trait Thumbnail {
     (width, thumbnail._id.get)
   }
 
-  @Util protected def deleteBatchImportThumbnails(path: String, spec: String, org: String, store: GridFS) {
-    val thumbs = store.find(MongoDBObject(ORIGIN_PATH_FIELD -> path.r, spec -> spec, org -> org))
+  @Util protected def deleteBatchImportThumbnails(path: String, collectionId: String, orgId: String, store: GridFS) {
+    val thumbs = store.find(MongoDBObject(ORIGIN_PATH_FIELD -> path.r, COLLECTION_IDENTIFIER_FIELD -> collectionId, ORGANIZATION_IDENTIFIER_FIELD -> orgId))
     thumbs foreach {
       t => store.remove(t.getId.asInstanceOf[ObjectId])
     }
