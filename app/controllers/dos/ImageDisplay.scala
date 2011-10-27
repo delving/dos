@@ -21,7 +21,7 @@ object ImageDisplay extends Controller {
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, orgId: String, collectionId: String, width: String = ""): Result = renderImage(id = id, thumbnail = true, orgId = orgId, collectionId = collectionId, thumbnailWidth = thumbnailWidth(width))
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: String = "", browse: Boolean = false): Result = renderImage(id = id, thumbnail = true, orgId = orgId, collectionId = collectionId, thumbnailWidth = thumbnailWidth(width), browse = browse)
 
   /**
    * Display an image given an ID
@@ -36,7 +36,7 @@ object ImageDisplay extends Controller {
 
   // ~~ PRIVATE
 
-  @Util private[dos] def renderImage(id: String, orgId: String = "", collectionId: String = "", thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH, store: GridFS = fileStore): Result = {
+  @Util private[dos] def renderImage(id: String, orgId: String = "", collectionId: String = "", thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH, store: GridFS = fileStore, browse: Boolean = false): Result = {
 
     val baseQuery: MongoDBObject = if (ObjectId.isValid(id)) {
       val f = if (thumbnail) THUMBNAIL_ITEM_POINTER_FIELD else IMAGE_ITEM_POINTER_FIELD
@@ -49,10 +49,10 @@ object ImageDisplay extends Controller {
       // - the image identifier (file name minus file extension)
 
       val idIsUrl = id.startsWith("http://")
-      if(!idIsUrl && (orgId == null || orgId.isEmpty))
-        Logger.warn("Attempting to display image with string identifier without orgId")
-      if(!idIsUrl && (collectionId == null || collectionId.isEmpty))
-        Logger.warn("Attempting to display image with string identifier without collectionId")
+      if(!idIsUrl && !browse && (orgId == null || orgId.isEmpty))
+        Logger.warn("Attempting to display image '%s' with string identifier without orgId".format(id))
+      if(!idIsUrl && !browse && (collectionId == null || collectionId.isEmpty))
+        Logger.warn("Attempting to display image '%s' with string identifier without collectionId".format(id))
 
       MongoDBObject(IMAGE_ID_FIELD -> id, ORGANIZATION_IDENTIFIER_FIELD -> orgId, COLLECTION_IDENTIFIER_FIELD -> collectionId)
     }

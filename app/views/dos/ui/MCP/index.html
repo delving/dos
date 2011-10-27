@@ -55,7 +55,7 @@
             <div class="unit size1of5 ${counter == 5 ? 'lastUnit' : ''}">
                 <div class="mod simple">
                     <div class="media">
-                        <img src="/thumbnail/${file.id()}" width="80" height="80" class="img"/>
+                        <img src="/thumbnail/${file.id()}?browse=true" width="80" height="80" class="img"/>
 
                         <div class="bd">${file.name}</div>
                     </div>
@@ -118,11 +118,9 @@
                 <td>
                     <button class="actiton" data-bind="click: function() { cancel(_id); }">Cancel</button>
                     <a href="#" class="button" data-bind="click: function() { showLogs(_id); }">Show logs</a>
-                </td>
-                <td>
-                    <div id="runningProgress">
-                        <div id="runningProgressCounter"></div>
-                    </div>
+                  <div id="runningProgress">
+                      <div id="runningProgressCounter"></div>
+                  </div>
                 </td>
             </tr>
             {{/each}}

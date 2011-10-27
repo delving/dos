@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import com.thebuzzmedia.imgscalr.Scalr
-import com.mongodb.casbah.commons.MongoDBObject
 
 /**
  *
@@ -31,13 +30,6 @@ trait Thumbnail {
     params foreach { p => thumbnail.put(p._1, p._2)}
     thumbnail.save
     (width, thumbnail._id.get)
-  }
-
-  @Util protected def deleteBatchImportThumbnails(path: String, collectionId: String, orgId: String, store: GridFS) {
-    val thumbs = store.find(MongoDBObject(ORIGIN_PATH_FIELD -> path.r, COLLECTION_IDENTIFIER_FIELD -> collectionId, ORGANIZATION_IDENTIFIER_FIELD -> orgId))
-    thumbs foreach {
-      t => store.remove(t.getId.asInstanceOf[ObjectId])
-    }
   }
 
   private def createThumbnail(sourceStream: InputStream, thumbnailWidth: Int, boundingBox: Boolean = true): InputStream = {
