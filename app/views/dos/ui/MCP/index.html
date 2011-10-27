@@ -85,19 +85,16 @@
 
 <div id="footer mod">
     <div id="tasks" style="visibility: hidden;"></div>
-    <div class="line">
-        <div class="unit size1of3">
+     <div class="unit size3of5">
             <div data-bind="template: 'queuedTasksTemplate'"></div>
-        </div>
 
-        <div class="unit size1of3">
             <div data-bind="template: 'runningTasksTemplate'"></div>
-        </div>
-        <div class="unit size1of3 unitLast">
+
             <div data-bind="template: 'finishedTasksTemplate'"></div>
-        </div>
-    </div>
-    <div id="log" style="float: right;" data-bind="template: 'logTemplate'"></div>
+      </div>
+       <div class="unit size2of5">
+            <div id="log" data-bind="template: 'logTemplate'"></div>
+      </div>
 </div>
 
 <script type="text/html" id="runningTasksTemplate">
@@ -179,8 +176,9 @@
 </script>
 
 <script type="text/html" id="logTemplate">
+    <h3 class="neutral">Logs</h3>
     {{each logs()}}
-    <div data-bind="text: message"></div>
+    <div data-bind="text: message" class="mod"></div>
     {{/each}}
 </script>
 
