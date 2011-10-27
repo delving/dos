@@ -85,19 +85,14 @@
 
 <div id="footer mod">
     <div id="tasks" style="visibility: hidden;"></div>
-    <div class="line">
-        <div class="unit size1of3">
-            <div data-bind="template: 'queuedTasksTemplate'"></div>
-        </div>
-
-        <div class="unit size1of3">
-            <div data-bind="template: 'runningTasksTemplate'"></div>
-        </div>
-        <div class="unit size1of3 unitLast">
-            <div data-bind="template: 'finishedTasksTemplate'"></div>
-        </div>
-    </div>
-    <div id="log" style="float: right;" data-bind="template: 'logTemplate'"></div>
+     <div class="unit size3of5">
+         <div data-bind="template: 'finishedTasksTemplate'"></div>
+         <div data-bind="template: 'runningTasksTemplate'"></div>
+         <div data-bind="template: 'queuedTasksTemplate'"></div>
+      </div>
+       <div class="unit size2of5">
+            <div id="log" data-bind="template: 'logTemplate'"></div>
+      </div>
 </div>
 
 <script type="text/html" id="runningTasksTemplate">
@@ -116,7 +111,7 @@
                 <td data-bind="text: path"></td>
                 <td data-bind="text: taskType.name"></td>
                 <td>
-                    <button class="actiton" data-bind="click: function() { cancel(_id); }">Cancel</button>
+                    <button class="button" data-bind="click: function() { cancel(_id); }">Cancel</button>
                     <a href="#" class="button" data-bind="click: function() { showLogs(_id); }">Show logs</a>
                   <div id="runningProgress">
                       <div id="runningProgressCounter"></div>
@@ -145,7 +140,7 @@
                 <td data-bind="text: path"></td>
                 <td data-bind="text: taskType.name"></td>
                 <td>
-                    <button class="action" data-bind="click: function() { cancel(_id); }">Cancel</button>
+                    <button class="button" data-bind="click: function() { cancel(_id); }">Cancel</button>
                 </td>
             </tr>
             {{/each}}
@@ -177,8 +172,9 @@
 </script>
 
 <script type="text/html" id="logTemplate">
+    <h3 class="neutral">Logs</h3>
     {{each logs()}}
-    <div data-bind="text: message"></div>
+    <div data-bind="text: message" class="mod"></div>
     {{/each}}
 </script>
 
