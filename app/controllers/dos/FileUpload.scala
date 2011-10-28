@@ -8,7 +8,7 @@ import java.util.List
 import play.data.Upload
 import play.mvc.{Controller, Util}
 import org.bson.types.ObjectId
-import extensions.dos.Extensions
+import extensions.Extensions
 
 /**
  *

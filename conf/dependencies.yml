@@ -2,43 +2,24 @@ self: play -> dos 1.0
 
 require:
     - play
+    - delving -> scala 0.9.1_20111028
+    - delving -> common 1.0
     - commons-httpclient -> commons-httpclient 3.1
     - com.thebuzzmedia -> imgscalr-lib 3.2
-    - com.mongodb.casbah -> casbah_2.8.1 2.1.5.0:
-        exclude:
-            - org.scala-lang -> *
-    - com.novus -> salat-core_2.8.1 0.0.8-SNAPSHOT:
-        exclude:
-            - org.scala-lang -> scala-library
-            - org.scala-lang -> scala-compiler
-    - com.codahale -> jerkson_2.8.1 0.4.2-SNAPSHOT:
-        exclude:
-            - org.scala-lang -> scala-library
     - provided -> magicktiler-lib 0.9
     - provided -> im4java 1.1.0
 
 repositories:
-    - scala-tools:
-        type: iBiblio
-        root: "http://scala-tools.org/repo-releases/"
-        contains:
-            - com.mongodb.casbah.*
-            - org.scalaj.*
-    - novus:
-        type: iBiblio
-        root: "http://repo.novus.com/snapshots/"
-        contains:
-            - com.novus.*
-    - codahale:
-        type: iBiblio
-        root: "http://repo.codahale.com/"
-        contains:
-            - com.codahale.*
     - theBuzzMedia:
         type: iBiblio
         root: "http://maven.thebuzzmedia.com"
         contains:
             - com.thebuzzmedia.*
+    - delving-modules:
+        type:       http
+        artifact:   "http://development.delving.org/dist/[module]-[revision].zip"
+        contains:
+            - delving -> *
     - provided:
         type: local
         artifact: "${application.path}/lib-extra/[module]-[revision].jar"

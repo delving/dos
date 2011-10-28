@@ -1,7 +1,7 @@
 package controllers.dos.ui
 
 import models.dos.Log
-import extensions.dos.Extensions
+import extensions.Extensions
 import play.mvc.Controller
 import org.bson.types.ObjectId
 import play.mvc.results.Result
