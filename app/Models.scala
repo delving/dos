@@ -19,7 +19,7 @@ package object dos {
 
   val connectionName = if((Play.mode == Play.Mode.DEV) && (Play.id == "test")) "dosTest" else "dos"
 
-  val connection: MongoDB  =  if (Play.configuration.getProperty("mongo.test.context").toBoolean || Play.mode == Play.Mode.DEV) {
+  val connection: MongoDB  =  if (Play.configuration.getProperty("mongo.test.context", "true").toBoolean || Play.mode == Play.Mode.DEV) {
     Logger.info("Starting Mongo in Test Mode connecting to localhost:27017")
     MongoConnection()(connectionName)
   }
