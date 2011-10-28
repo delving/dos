@@ -121,7 +121,7 @@ object FileUpload extends Controller with Extensions with Thumbnail {
   // ~~~ PRIVATE
 
 
-  @Util private def uploadFileInternal(uid: String, uploads: Iterable[Upload]): Result = {
+  @Util def uploadFileInternal(uid: String, uploads: Iterable[Upload]): Result = {
     val uploadedFiles = for (upload: play.data.Upload <- uploads) yield {
       val f = fileStore.createFile(upload.asStream())
       f.filename = upload.getFileName

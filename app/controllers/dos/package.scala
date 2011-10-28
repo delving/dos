@@ -8,11 +8,14 @@ import play.Play
 package object dos {
 
   // ~~ connection to mongo
+  val testStoreConnection = MongoConnection().getDB("testDoSStore")
+  val testing = Play.mode == Play.Mode.DEV && Play.id == "test"
+
   val fileStoreConnnection = MongoConnection().getDB(Play.configuration.getProperty("db.fileStore.name", "fileStore"))
-  val fileStore = GridFS(fileStoreConnnection)
+  val fileStore = if(testing) GridFS(testStoreConnection) else GridFS(fileStoreConnnection)
 
   val imageCacheStoreConnection = MongoConnection().getDB("imageCache")
-  val imageCacheStore: GridFS = GridFS(imageCacheStoreConnection)
+  val imageCacheStore: GridFS = if(testing) GridFS(testStoreConnection) else GridFS(imageCacheStoreConnection)
 
   val emptyThumbnail = Play.configuration.getProperty("dos.emptyImagePath", "/public/dos/images/dummy-object.png")
   val emptyThumbnailFile = new File(Play.applicationPath, emptyThumbnail)
