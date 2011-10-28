@@ -4,15 +4,43 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoDB, MongoConnection}
 import com.novus.salat.Context
-import play.Play
 import java.util.Date
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import java.io.File
+import play.{Logger, Play}
 
 package object dos {
 
-  val connection: MongoDB = MongoConnection()("dos")
+  // TODO this is shamelessly copy-pasted from the culture-hub
+  // we have to create a mongo module to handle this uniformly
+
+  import com.mongodb.ServerAddress
+
+  val connectionName = if((Play.mode == Play.Mode.DEV) && (Play.id == "test")) "dosTest" else "dos"
+
+  val connection: MongoDB  =  if (Play.configuration.getProperty("mongo.test.context").toBoolean || Play.mode == Play.Mode.DEV) {
+    Logger.info("Starting Mongo in Test Mode connecting to localhost:27017")
+    MongoConnection()(connectionName)
+  }
+  else if (mongoServerAddresses.isEmpty || mongoServerAddresses.size > 2) {
+    Logger.info("Starting Mongo in Replicaset Mode connecting to %s".format(mongoServerAddresses.mkString(", ")))
+    MongoConnection(mongoServerAddresses)(connectionName)
+  }
+  else {
+    Logger.info("Starting Mongo in Single Target Mode connecting to %s".format(mongoServerAddresses.head.toString))
+    MongoConnection(mongoServerAddresses.head)(connectionName)
+  }
+
+  lazy val mongoServerAddresses: List[ServerAddress] = {
+    List(1, 2, 3).map {
+      serverNumber =>
+        val host = Play.configuration.getProperty("mongo.server%d.host".format(serverNumber)).stripMargin
+        val port = Play.configuration.getProperty("mongo.server%d.port".format(serverNumber)).stripMargin
+        (host, port)
+    }.filter(entry => !entry._1.isEmpty && !entry._2.isEmpty).map(entry => new ServerAddress(entry._1, entry._2.toInt))
+  }
+
   val taskCollection = connection("Tasks")
   val logCollection = connection("Logs")
   val originCollection = connection("Files")
