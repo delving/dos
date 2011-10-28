@@ -2,4 +2,6 @@ logs/
 lib/
 modules/
 tmp/
+test-result/
+dist/
 *.iws
