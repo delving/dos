@@ -252,32 +252,35 @@
             viewModel.finished(data.finished);
 
             if (data.running.length > 0 && viewModel.activeTask() !== data.running[0]._id) {
+                $('#tasks').smartupdaterSetTimeout(10000);
                 var runningId = data.running[0]._id;
+                var logCount = 0;
                 viewModel.activeTask(runningId);
-                console.log("Init");
 
                 // log stream
                 $('#log').smartupdater({
                     url: '/@dos/log/list/' + runningId,
-                    minTimeout: 1500
+                    minTimeout: 5000
                 }, function(d) {
                     var data = $.parseJSON(d);
                     $.each(data.logs, function(index, log) {
                         viewModel.logs.push(log);
                     });
-                    $('#log').smartupdaterAlterUrl(false, {lastCount: viewModel.logs().length});
+                    logCount = logCount + data.logs.length;
+                    $('#log').smartupdaterAlterUrl(false, {lastCount: logCount})
                 });
 
                 // progress
                 $('#runningProgressCounter').progressbar();
                 $('#runningProgress').smartupdater({
                     url: '/@dos/task/status/' + data.running[0]._id,
-                    minTimeout: 1500
+                    minTimeout: 2000
                 }, function(d) {
                     var data = $.parseJSON(d);
                     $('#runningProgressCounter').progressbar('value', data.percentage);
                 });
             } else if (data.running.length == 0 && viewModel.activeTask()) {
+                $('#tasks').smartupdaterSetTimeout(2000);
                 viewModel.showLogs(data.finished[data.finished.length - 1]._id);
                 $('#runningProgress').smartupdaterStop();
                 $('#log').smartupdaterStop();
