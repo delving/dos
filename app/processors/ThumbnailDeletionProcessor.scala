@@ -23,10 +23,12 @@ object ThumbnailDeletionProcessor extends Processor with Thumbnail {
       } else {
         info(task, "Starting to delete thumbnails for directory " + task.path)
         val thumbs = fileStore.find(MongoDBObject(ORIGIN_PATH_FIELD -> task.path.r, COLLECTION_IDENTIFIER_FIELD -> task.params(COLLECTION_IDENTIFIER_FIELD).toString, ORGANIZATION_IDENTIFIER_FIELD -> task.params(ORGANIZATION_IDENTIFIER_FIELD).toString))
+        Task.setTotalItems(task, thumbs.size)
         thumbs foreach {
           t => {
             val origin = t.get(ORIGIN_PATH_FIELD).toString
             info(task, "Removing thumbnails for image " + origin, Some(origin))
+            Task.incrementProcessedItems(task, 1)
             fileStore.remove(t.getId.asInstanceOf[ObjectId])
           }
         }
