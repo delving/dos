@@ -24,9 +24,9 @@ object TIFFlatteningProcessor extends Processor {
     }
 
     // this is needed because OS X won't run commands unless given the full path
-    val gmCommand = Play.configuration.getProperty("image.graphicsmagick.command")
+    val gmCommand = Play.configuration.getProperty("dos.graphicsmagic.cmd")
     if(gmCommand == null) {
-      error(task, "Could not find path to GraphicsMagick in application.conf under key 'image.graphicsmagick.command'")
+      error(task, "Could not find path to GraphicsMagick in application.conf under key 'dos.graphicsmagic.cmd'")
       return
     }
 
