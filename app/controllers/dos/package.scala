@@ -21,7 +21,7 @@ package object dos {
   val emptyThumbnailFile = new File(Play.applicationPath, emptyThumbnail)
 
   val DEFAULT_THUMBNAIL_WIDTH = 220
-  val thumbnailSizes = Map("tiny" -> 80, "thumbnail" -> 100, "small" -> 220, "story" -> 350)
+  val thumbnailSizes = Map("tiny" -> 80, "thumbnail" -> 100, "smaller" -> 180, "small" -> 220, "story" -> 350, "big" -> 500)
 
   val THUMBNAIL_WIDTH_FIELD = "thumbnail_width"
 
