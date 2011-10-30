@@ -108,7 +108,7 @@
             <tbody>
             {{each running()}}
             <tr>
-                <td data-bind="text: path"></td>
+                <td><a href="/@dos/browse?path=#{verbatim}${'${path}'}#{/}">#{verbatim}${'${path}'}#{/}</a></td>
                 <td data-bind="text: taskType.name"></td>
                 <td>
                     <button class="button" data-bind="click: function() { cancel(_id); }">Cancel</button>
@@ -137,7 +137,7 @@
             {{each queued()}}
 
             <tr>
-                <td data-bind="text: path"></td>
+                <td><a href="/@dos/browse?path=#{verbatim}${'${path}'}#{/}">#{verbatim}${'${path}'}#{/}</a></td>
                 <td data-bind="text: taskType.name"></td>
                 <td>
                     <button class="button" data-bind="click: function() { cancel(_id); }">Cancel</button>
@@ -161,7 +161,7 @@
             <tbody>
             {{each finished()}}
             <tr>
-                <td data-bind="text: path"></td>
+                <td><a href="/@dos/browse?path=#{verbatim}${'${path}'}#{/}">#{verbatim}${'${path}'}#{/}</a></td>
                 <td data-bind="text: taskType.name"></td>
                 <td><a class="button" href="#" data-bind="click: function() { showLogs(_id); }">Show logs</a></td>
             </tr>
@@ -174,7 +174,11 @@
 <script type="text/html" id="logTemplate">
     <h3 class="neutral">Logs</h3>
     {{each logs()}}
+    {{if message === '--- MORE ---' }}
+    <div class="mod"><a href="/@dos/log/view/#{verbatim}${'${task_id}'}#{/}">Show complete log</a></div>
+    {{else}}
     <div data-bind="text: message" class="mod"></div>
+    {{/if}}
     {{/each}}
 </script>
 
@@ -232,6 +236,9 @@
             showLogs: function(id) {
                 $.get('/@dos/log/list/' + id, function(data) {
                     viewModel.logs(data.logs);
+                    if(data.skipped) {
+                      viewModel.logs.push({message: "--- MORE ---", task_id: id});
+                    }
                 });
             }
         };
@@ -264,6 +271,9 @@
                     minTimeout: 5000
                 }, function(d) {
                     var data = $.parseJSON(d);
+                    if(data.logs) {
+                      viewModel.logs.push("--- Skipped some entries ---")
+                    }
                     $.each(data.logs, function(index, log) {
                         viewModel.logs.push(log);
                     });

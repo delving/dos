@@ -15,6 +15,7 @@ GET     /@dos/task/list/finished                dos.ui.Tasks.list(what:'finished
 GET     /@dos/task/status/{id}                  dos.ui.Tasks.status
 
 GET     /@dos/log/list/{taskId}                 dos.ui.Logs.list
+GET     /@dos/log/view/{taskId}                 dos.ui.Logs.view
 
 # File Upload API
 POST       /file/upload/{uid}                   dos.FileUpload.fileUpload
