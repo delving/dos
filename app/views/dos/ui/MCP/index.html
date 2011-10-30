@@ -246,6 +246,7 @@
 
             // TODO do this with a proper function
             if (data.running.length !== viewModel.running().length || data.running.length > 0 && viewModel.running.length > 0 && data.running[0]._id !== viewModel.running()[0]._id) {
+                viewModel.logs([]);
                 viewModel.running(data.running);
             }
             viewModel.queued(data.queued);
