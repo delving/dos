@@ -4,24 +4,24 @@ import java.io.File
 import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.gridfs.GridFS
 import play.Play
-
+import models._
 package object dos {
 
   // ~~ connection to mongo
   val testStoreConnection = MongoConnection().getDB("testDoSStore")
   val testing = Play.mode == Play.Mode.DEV && Play.id == "test"
 
-  val fileStoreConnnection = MongoConnection().getDB(Play.configuration.getProperty("db.fileStore.name", "fileStore"))
+  val fileStoreConnnection = createConnection(Play.configuration.getProperty("dos.db.fileStore.name", "fileStore"))
   val fileStore = if(testing) GridFS(testStoreConnection) else GridFS(fileStoreConnnection)
 
-  val imageCacheStoreConnection = MongoConnection().getDB("imageCache")
+  val imageCacheStoreConnection = createConnection(Play.configuration.getProperty("dos.db.imageCache.name", "imageCache"))
   val imageCacheStore: GridFS = if(testing) GridFS(testStoreConnection) else GridFS(imageCacheStoreConnection)
 
   val emptyThumbnail = Play.configuration.getProperty("dos.emptyImagePath", "/public/dos/images/dummy-object.png")
   val emptyThumbnailFile = new File(Play.applicationPath, emptyThumbnail)
 
   val DEFAULT_THUMBNAIL_WIDTH = 220
-  val thumbnailSizes = Map("tiny" -> 80, "small" -> 220)
+  val thumbnailSizes = Map("tiny" -> 80, "thumbnail" -> 100, "small" -> 220, "story" -> 350)
 
   val THUMBNAIL_WIDTH_FIELD = "thumbnail_width"
 
