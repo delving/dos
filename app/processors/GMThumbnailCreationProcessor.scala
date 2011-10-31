@@ -60,7 +60,7 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
           val thumb = storeThumbnail(new BufferedInputStream(new FileInputStream(thumbnailFile)), image.getName, width, controllers.dos.fileStore, Map(
             ORIGIN_PATH_FIELD -> image.getAbsolutePath,
             IMAGE_ID_FIELD -> imageName,
-            TASK_ID -> task._id.toString,
+            TASK_ID -> task._id,
             ORGANIZATION_IDENTIFIER_FIELD -> orgId,
             COLLECTION_IDENTIFIER_FIELD -> collectionId))
           info(task, "Created thumbnail of size '%s' for image '%s'".format(width, image.getAbsolutePath), Some(image.getAbsolutePath), Some(thumb._2.toString))
