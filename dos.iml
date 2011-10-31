@@ -13,6 +13,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/common-1.0/app" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -22,14 +23,15 @@
         <CLASSES>
           <root url="file://$MODULE_DIR$/lib" />
           <root url="file://$PLAY_HOME$/modules/scala-0.9.1/lib" />
+          <root url="file://$MODULE_DIR$/modules/common-1.0/lib" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
           <root url="file://$PLAY_HOME$/modules/scala-0.9.1/src" />
-          <root url="jar://$MODULE_DIR$/lib/casbah-commons_2.8.1-2.1.5.0.jar!/" />
           <root url="file://$MODULE_DIR$/../magicktiler/src/main/java" />
         </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/modules/common-1.0/lib" recursive="false" />
         <jarDirectory url="file://$PLAY_HOME$/modules/scala-0.9.1/lib" recursive="false" />
       </library>
     </orderEntry>

@@ -55,7 +55,7 @@
             <div class="unit size1of5 ${counter == 5 ? 'lastUnit' : ''}">
                 <div class="mod simple">
                     <div class="media">
-                        <img src="/thumbnail/${file.id()}?browse=true" width="80" height="80" class="img"/>
+                        <img src="/thumbnail/${file.path()}?browse=true&width=80" width="80" height="80" class="img"/>
 
                         <div class="bd">${file.name}</div>
                     </div>
@@ -86,9 +86,9 @@
 <div id="footer mod">
     <div id="tasks" style="visibility: hidden;"></div>
      <div class="unit size3of5">
-         <div data-bind="template: 'finishedTasksTemplate'"></div>
          <div data-bind="template: 'runningTasksTemplate'"></div>
          <div data-bind="template: 'queuedTasksTemplate'"></div>
+         <div data-bind="template: 'finishedTasksTemplate'"></div>
       </div>
        <div class="unit size2of5">
             <div id="log" data-bind="template: 'logTemplate'"></div>
@@ -271,8 +271,15 @@
                     minTimeout: 5000
                 }, function(d) {
                     var data = $.parseJSON(d);
-                    if(data.logs) {
-                      viewModel.logs.push("--- Skipped some entries ---")
+                    if(logCount > 100) {
+                      // this is getting too heavy on the CPU
+                      viewModel.logs([])
+                    }
+                    if(data.skipped || logCount > 100) {
+                      viewModel.logs.push({message: "--- Skipped some entries ---"})
+                    }
+                    if(logCount > 100) {
+                      logCount = 0;
                     }
                     $.each(data.logs, function(index, log) {
                         viewModel.logs.push(log);

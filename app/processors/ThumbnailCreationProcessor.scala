@@ -1,17 +1,15 @@
 package processors
 
 import models.dos.Task
-import play.mvc.Util
+import java.io.File
 import org.bson.types.ObjectId
-import controllers.dos._
-import java.io.{FileInputStream, File}
 
 /**
- *
+ * 
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ThumbnailCreationProcessor extends Processor with Thumbnail {
+trait ThumbnailCreationProcessor extends Processor {
 
   def process(task: Task, processorParams: Map[String, AnyRef]) {
     val p = new File(task.path)
@@ -34,31 +32,12 @@ object ThumbnailCreationProcessor extends Processor with Thumbnail {
 
       val images = p.listFiles().filter(f => isImage(f.getName))
 
-      Task.setTotalItems(task, images.size)
+      Task.setTotalItems(task, images.size * sizes.length)
 
-      for (image <- images; if (!task.isCancelled)) {
-        try {
-          for (s <- sizes) {
-            val id = createThumbnailFromFile(image, s, task._id, orgId, collectionId)
-            info(task, "Created thumbnail of size '%s' for image '%s'".format(s, image.getAbsolutePath), Some(image.getAbsolutePath), Some(id.toString))
-          }
-          Task.incrementProcessedItems(task, 1)
-        } catch {
-          case t => error(task, "Error creating thumbnail for image '%s': %s".format(image.getAbsolutePath, t.getMessage), Some(image.getAbsolutePath))
-        }
-      }
+      for(s <- sizes) createThumbnailsForSize(images, s, task, orgId, collectionId)
     }
   }
 
-  @Util private def createThumbnailFromFile(image: File, width: Int, taskId: ObjectId, orgId: String, collectionId: String): ObjectId = {
-    val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName
-    storeThumbnail(new FileInputStream(image), image.getName, width, fileStore, Map(
-      ORIGIN_PATH_FIELD -> image.getAbsolutePath,
-      IMAGE_ID_FIELD -> imageName,
-      TASK_ID -> taskId,
-      ORGANIZATION_IDENTIFIER_FIELD -> orgId,
-      COLLECTION_IDENTIFIER_FIELD -> collectionId
-    ))._2
-  }
+  protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String)
 
 }

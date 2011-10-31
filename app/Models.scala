@@ -62,7 +62,7 @@ case class Task(_id: ObjectId = new ObjectId,
 
   def isCancelled = taskCollection.findOne(MongoDBObject("_id" -> _id, "state.name" -> TaskState.CANCELLED.name)).isDefined
 
-  override def toString = "Task[%s] path: %s, params: %s".format(_id, path, params.toString)
+  override def toString = "Task[%s] type: %s, path: %s, params: %s".format(_id, taskType.name, path, params.toString)
 
 }
 

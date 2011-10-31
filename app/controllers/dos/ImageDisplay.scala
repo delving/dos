@@ -49,12 +49,24 @@ object ImageDisplay extends Controller {
       // - the image identifier (file name minus file extension)
 
       val idIsUrl = id.startsWith("http://")
-      if(!idIsUrl && !browse && (orgId == null || orgId.isEmpty))
+      var incomplete = false
+      if(!idIsUrl && !browse && (orgId == null || orgId.isEmpty)) {
         Logger.warn("Attempting to display image '%s' with string identifier without orgId".format(id))
-      if(!idIsUrl && !browse && (collectionId == null || collectionId.isEmpty))
+        incomplete = true
+      }
+      if(!idIsUrl && !browse && (collectionId == null || collectionId.isEmpty)) {
         Logger.warn("Attempting to display image '%s' with string identifier without collectionId".format(id))
-
-      MongoDBObject(IMAGE_ID_FIELD -> id, ORGANIZATION_IDENTIFIER_FIELD -> orgId, COLLECTION_IDENTIFIER_FIELD -> collectionId)
+        incomplete = true
+      }
+      if(browse) {
+        MongoDBObject(ORIGIN_PATH_FIELD -> id)
+      }
+      else if(idIsUrl || incomplete) {
+        MongoDBObject(IMAGE_ID_FIELD -> id)
+      }
+      else {
+        MongoDBObject(IMAGE_ID_FIELD -> id, ORGANIZATION_IDENTIFIER_FIELD -> orgId, COLLECTION_IDENTIFIER_FIELD -> collectionId)
+      }
     }
 
     val query: MongoDBObject = if (thumbnail) (baseQuery ++ MongoDBObject(THUMBNAIL_WIDTH_FIELD -> thumbnailWidth)) else baseQuery

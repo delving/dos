@@ -2,6 +2,7 @@ package processors
 
 import util.Logging
 import models.dos.{Task}
+import play.Play
 
 /**
  *
@@ -20,5 +21,14 @@ trait Processor extends Logging {
             case "jpg" | "tif" | "tiff" => true
             case _ => false
           })
+
+  def getGMCommand(task: Task): Option[String] = {
+    // this is needed because OS X won't run commands unless given the full path
+    val gmCommand = Play.configuration.getProperty("dos.graphicsmagic.cmd")
+    if(gmCommand == null) {
+      error(task, "Could not find path to GraphicsMagick in application.conf under key 'dos.graphicsmagic.cmd'")
+      None
+    } else Some(gmCommand)
+  }
 
 }

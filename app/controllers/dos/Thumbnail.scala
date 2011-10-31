@@ -17,12 +17,16 @@ trait Thumbnail {
 
   @Util protected def createThumbnails(image: GridFSDBFile, store: GridFS, globalParams: Map[String, String] = Map.empty[String, String]): Map[Int, ObjectId] = {
     thumbnailSizes.map {
-      size => storeThumbnail(image.inputStream, image.filename, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
+      size => createThumbnailFromStream(image.inputStream, image.filename, size._2, store, globalParams + (FILE_POINTER_FIELD -> image._id.get))
     }
   }
 
-  @Util protected def storeThumbnail(imageStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
-    val thumbnailStream = createThumbnail(imageStream, width)
+  @Util protected def createThumbnailFromStream(imageStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
+    val resizedStream = createThumbnail(imageStream, width)
+    storeThumbnail(resizedStream, filename, width, store, params)
+  }
+
+  @Util protected def storeThumbnail(thumbnailStream: InputStream, filename: String, width: Int, store: GridFS, params: Map[String, AnyRef] = Map.empty[String, AnyRef]): (Int, ObjectId) = {
     val thumbnail = store.createFile(thumbnailStream)
     thumbnail.filename = filename
     thumbnail.contentType = "image/jpeg"
