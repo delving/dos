@@ -14,7 +14,7 @@ import play.Logger
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 
-object ImageDisplay extends Controller {
+object ImageDisplay extends Controller with RespondWithDefaultImage {
 
   // ~~ public HTTP API
 
@@ -80,14 +80,15 @@ object ImageDisplay extends Controller {
         // try to find the next fitting size
         store.find(baseQuery).sortWith((a, b) => a.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int] > b.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).headOption match {
           case Some(t) => Some(t)
-          case None => return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
+          case None => None//return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
         }
       }
-      case None => if (thumbnail) return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true) else None
+      case None => None //if (thumbnail) return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true) else None
 
     }
     image match {
-      case None => NotFound
+      case None =>
+          withDefaultFromRequest(request, new play.mvc.results.NotFound(request.querystring), thumbnail, thumbnailWidth.toString, false)
       case Some(t) => new RenderBinary(t.inputStream, t.filename, t.length, t.contentType, true)
     }
   }
