@@ -17,11 +17,17 @@ import play.mvc.Controller
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  * @since 1/2/11 10:09 PM
  */
-object ImageCache extends Controller {
+object ImageCache extends Controller with RespondWithDefaultImage {
   val imageCacheService = new ImageCacheService
 
-  def image(id: String): Result = imageCacheService.retrieveImageFromCache(id, false, "", response)
-  def thumbnail(id: String, width: String): Result = imageCacheService.retrieveImageFromCache(id, true, width, response)
+  def image(id: String, withDefaultFromUrl: Boolean = true): Result = {
+  val result = imageCacheService.retrieveImageFromCache(id, false, "", response)
+  if (withDefaultFromUrl) withDefaultFromRequest(request, result, false, "") else result
+  }
+  def thumbnail(id: String, width: String, withDefaultFromUrl: Boolean = true): Result = {
+    val result = imageCacheService.retrieveImageFromCache(id, true, width, response)
+    if (withDefaultFromUrl) withDefaultFromRequest(request, result, true, width) else result
+  }
 }
 
 class ImageCacheService extends HTTPClient with Thumbnail {
@@ -129,3 +135,36 @@ object ImageCacheService {
 }
 
 case class WebResource(url: String, dataAsStream: InputStream, storable: Boolean, contentType: String)
+
+trait RespondWithDefaultImage {
+
+  import play.mvc.Http.Request
+  val IMAGE_NOT_FOUND = classOf[NotFound]
+
+  def withDefaultFromRequest(request: Request, result: Result, thumbnail: Boolean = true, width: String, notFoundResponse: Boolean = true): Result = {
+    import play.mvc.results.RenderBinary
+
+    def getDefaultImage: Result = {
+      if (request.params._contains("default")) {
+        val defaultImageUrl = request.params.get("default")
+
+        val defaultImage = if (thumbnail)
+          ImageCache.thumbnail(defaultImageUrl, width, false)
+        else
+          ImageCache.image(defaultImageUrl, false)
+
+        defaultImage.getClass match {
+          case `IMAGE_NOT_FOUND` => if (notFoundResponse) result else new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
+          case _ => defaultImage
+        }
+      }
+      else
+        if (notFoundResponse) result else new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
+    }
+
+    result.getClass match {
+        case `IMAGE_NOT_FOUND` => getDefaultImage
+        case _ => result
+    }
+  }
+}
