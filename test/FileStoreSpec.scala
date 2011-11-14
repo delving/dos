@@ -25,7 +25,7 @@ class FileStoreSpec extends UnitFlatSpec with ShouldMatchers with BeforeAndAfter
   val testFile = if(Play.configuration.getProperty("application.name") == "dos")
     new File(play.Play.applicationPath, "public/dos/images/dummy-object.png")
   else
-    new File(play.Play.applicationPath, "modules/dos/images/dummy-object.png")
+    new File(Play.modules.get("dos").getRealFile, "public/dos/images/dummy-object.png")
 
   val TEST_UID = "123456789"
   val TEST_OID = new ObjectId
