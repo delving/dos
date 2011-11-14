@@ -8,6 +8,7 @@ import org.scalatest.matchers.ShouldMatchers
 import play.data.Upload
 import play.libs.{MimeTypes, IO}
 import play.mvc.results.{RenderBinary, Result}
+import play.Play
 import play.test.UnitFlatSpec
 
 /**
@@ -21,7 +22,11 @@ class FileStoreSpec extends UnitFlatSpec with ShouldMatchers with BeforeAndAfter
     fileStore.db.dropDatabase()
   }
 
-  val testFile = new File(play.Play.applicationPath, "public/dos/images/dummy-object.png")
+  val testFile = if(Play.configuration.getProperty("application.name") == "dos")
+    new File(play.Play.applicationPath, "public/dos/images/dummy-object.png")
+  else
+    new File(play.Play.applicationPath, "modules/dos/images/dummy-object.png")
+
   val TEST_UID = "123456789"
   val TEST_OID = new ObjectId
 
