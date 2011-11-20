@@ -2,12 +2,14 @@ package controllers.dos
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Implicits._
-import play.mvc.{Util, Controller}
 import org.bson.types.ObjectId
 import com.mongodb.gridfs.GridFSDBFile
 import play.mvc.results.{RenderBinary, Result}
 import com.mongodb.casbah.gridfs.GridFS
-import play.Logger
+import play.{Play, Logger}
+import play.mvc.{Http, Util, Controller}
+import play.utils.Utils
+import java.util.Date
 
 /**
  *
@@ -39,6 +41,11 @@ object ImageDisplay extends Controller with RespondWithDefaultImage {
   @Util private[dos] def renderImage(id: String, orgId: String = "", collectionId: String = "", thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH, store: GridFS = fileStore, browse: Boolean = false, isFileId: Boolean = false): Result = {
 
     val baseQuery: MongoDBObject = if (ObjectId.isValid(id)) {
+      // here we can have different combinations:
+      // - we want a thumbnail, and pass in the mongo ObjectId of the file this thumbnail originated from
+      // - we want a thumbnail, and pass in the mongo ObjectId of an associated item that can be used to lookup the thumbnail (the thumbnail is "active" for that item id)
+      // - we want an image, and pass in the mongo ObjectId of the file
+      // - we want an image, and pass in the mongo ObjectId of an associaed item that can be used to lookup the image (the image is "active" for that item id)
       val f: String = if (isFileId && thumbnail) {
         FILE_POINTER_FIELD
       } else if(isFileId && !thumbnail) {
@@ -78,28 +85,46 @@ object ImageDisplay extends Controller with RespondWithDefaultImage {
     }
 
     val query: MongoDBObject = if (thumbnail) (baseQuery ++ MongoDBObject(THUMBNAIL_WIDTH_FIELD -> thumbnailWidth)) else baseQuery
-
+    val etag = request.headers.get("if-none-match")
     val image: Option[GridFSDBFile] = store.findOne(query) match {
       case Some(file) => {
-        ImageCacheService.setImageCacheControlHeaders(file, response, 60 * 15)
-        Some(file.underlying)
+        if(isNotExpired(etag, file.underlying)) {
+          return NotModified(etag.value())
+        } else {
+          response.setHeader("Last-Modified", Utils.getHttpDateFormatter.format(new Date()))
+          Some(file.underlying)
+        }
       }
       case None if (thumbnail) => {
         // try to find the next fitting size
         store.find(baseQuery).sortWith((a, b) => a.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int] > b.get(THUMBNAIL_WIDTH_FIELD).asInstanceOf[Int]).headOption match {
-          case Some(t) => Some(t)
-          case None => None//return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true)
+          case Some(t) =>
+            if(isNotExpired(etag, t)) {
+              return NotModified(etag.value())
+            } else {
+              response.setHeader("Last-Modified", Utils.getHttpDateFormatter.format(new Date()))
+              Some(t)
+            }
+          case None => None
         }
       }
-      case None => None //if (thumbnail) return new RenderBinary(emptyThumbnailFile, emptyThumbnailFile.getName, true) else None
+      case None => None
 
     }
     image match {
       case None =>
-          withDefaultFromRequest(request, new play.mvc.results.NotFound(request.querystring), thumbnail, thumbnailWidth.toString, false)
-      case Some(t) => new RenderBinary(t.inputStream, t.filename, t.length, t.contentType, true)
+        withDefaultFromRequest(request, new play.mvc.results.NotFound(request.querystring), thumbnail, thumbnailWidth.toString, false)
+      case Some(t) =>
+        // cache control
+//        val maxAge: String = Play.configuration.getProperty("http.cacheControl", "3600")
+//        val cacheControl = if (maxAge == "0") "no-cache" else "max-age=" + maxAge
+//        response.setHeader("Cache-Control", cacheControl)
+        response.setHeader("ETag", t.get("_id").toString)
+        new RenderBinary(t.inputStream, t.filename, t.length, t.contentType, true)
     }
   }
+
+  private def isNotExpired(etag: Http.Header, oid: GridFSDBFile) = etag != null && etag.value() == oid.get("_id").toString
 
   @Util private[dos] def thumbnailWidth(width: String): Int = {
     width match {
