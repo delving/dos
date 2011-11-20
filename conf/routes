@@ -29,7 +29,14 @@ GET        /image/cache                         dos.ImageCache.image
 GET        /thumbnail/cache                     dos.ImageCache.thumbnail
 
 # Image Display API
-GET        /file/image/{id}                                  dos.ImageDisplay.displayImage
+
+## Lookup by GridFS file ID
+GET        /file/image/{id}                                  dos.ImageDisplay.displayImage(fileId:'true')
+GET        /file/thumbnail/{id}/{width}?                     dos.ImageDisplay.displayThumbnail(fileId:'true')
+GET        /file/thumbnail/{<(.)*>id}                        dos.ImageDisplay.displayThumbnail(fileId:'true')
+
+## Lookup by item ID or other form of IDs
+GET        /image/{id}                                       dos.ImageDisplay.displayImage
 GET        /thumbnail/{orgId}/{collectionId}/{id}/{width}?   dos.ImageDisplay.displayThumbnail
 GET        /thumbnail/{orgId}/{collectionId}/{<(.)*>id}      dos.ImageDisplay.displayThumbnail
 GET        /thumbnail/{id}/{width}?                          dos.ImageDisplay.displayThumbnail

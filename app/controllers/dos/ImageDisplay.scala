@@ -21,12 +21,12 @@ object ImageDisplay extends Controller with RespondWithDefaultImage {
   /**
    * Display a thumbnail given an ID and a width
    */
-  def displayThumbnail(id: String, orgId: String, collectionId: String, width: String = "", browse: Boolean = false): Result = renderImage(id = id, thumbnail = true, orgId = orgId, collectionId = collectionId, thumbnailWidth = thumbnailWidth(width), browse = browse)
+  def displayThumbnail(id: String, orgId: String, collectionId: String, width: String = "", browse: Boolean = false, fileId:Boolean = false): Result = renderImage(id = id, thumbnail = true, orgId = orgId, collectionId = collectionId, thumbnailWidth = thumbnailWidth(width), browse = browse, isFileId = fileId)
 
   /**
    * Display an image given an ID
    */
-  def displayImage(id: String): Result = renderImage(id = id, thumbnail = false)
+  def displayImage(id: String, fileId: Boolean = false): Result = renderImage(id = id, thumbnail = false, isFileId = fileId)
 
 
   // ~~ public Scala API
@@ -36,10 +36,18 @@ object ImageDisplay extends Controller with RespondWithDefaultImage {
 
   // ~~ PRIVATE
 
-  @Util private[dos] def renderImage(id: String, orgId: String = "", collectionId: String = "", thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH, store: GridFS = fileStore, browse: Boolean = false): Result = {
+  @Util private[dos] def renderImage(id: String, orgId: String = "", collectionId: String = "", thumbnail: Boolean, thumbnailWidth: Int = DEFAULT_THUMBNAIL_WIDTH, store: GridFS = fileStore, browse: Boolean = false, isFileId: Boolean = false): Result = {
 
     val baseQuery: MongoDBObject = if (ObjectId.isValid(id)) {
-      val f = if (thumbnail) THUMBNAIL_ITEM_POINTER_FIELD else IMAGE_ITEM_POINTER_FIELD
+      val f: String = if (isFileId && thumbnail) {
+        FILE_POINTER_FIELD
+      } else if(isFileId && !thumbnail) {
+        "_id"
+      } else if(thumbnail && !isFileId) {
+        THUMBNAIL_ITEM_POINTER_FIELD
+      } else {
+        IMAGE_ITEM_POINTER_FIELD
+      }
       MongoDBObject(f -> new ObjectId(id))
     } else {
       // we have a string identifier - from ingested images
