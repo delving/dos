@@ -2,7 +2,6 @@ package processors
 
 import models.dos.Task
 import org.im4java.process.OutputConsumer
-import play.Play
 import org.im4java.core.{ImageCommand, IMOperation}
 import java.io.{File, InputStreamReader, BufferedReader, InputStream}
 
@@ -18,12 +17,8 @@ object TIFFlatteningProcessor extends Processor {
   val FLATTENED_PREFIX: String = "FLATTENED_"
 
   def process(task: Task, processorParams: Map[String, AnyRef]) {
-    if(!task.pathExists) {
-      error(task, "Cannot find directory '%s'".format(task.path))
-      return
-    }
 
-    val gmCommand = getGMCommand(task) getOrElse(return)
+    val gmCommand = getGMCommand(task) getOrElse (return)
 
     val oldDir = new File(task.pathAsFile, "_original")
     oldDir.mkdir()
@@ -44,7 +39,7 @@ object TIFFlatteningProcessor extends Processor {
       })
       identifiyCmd.run(identifyOp)
 
-      if(identified.length > 1) {
+      if (identified.length > 1) {
         // gm identify gives us lines like this:
         // 2006-011.tif TIFF 1000x800+0+0 DirectClass 8-bit 3.6M 0.000u 0:01
         // we want to fetch the 1000x800 part and know which line is da biggest
@@ -53,10 +48,10 @@ object TIFFlatteningProcessor extends Processor {
             val Array(width: Int, height: Int) = line.split(" ")(2).split("\\+")(0).split("x").map(Integer.parseInt(_))
             (width, height)
           })
-            .zipWithIndex
-            .foldLeft((0, 0), 0) {
-              (r: ((Int, Int), Int), c: ((Int, Int), Int)) => if(c._1._1 * c._1._2 > r._1._1 * r._1._2) c else r
-             })
+                  .zipWithIndex
+                  .foldLeft((0, 0), 0) {
+            (r: ((Int, Int), Int), c: ((Int, Int), Int)) => if (c._1._1 * c._1._2 > r._1._1 * r._1._2) c else r
+          })
 
         val largestIndex = largestLayer._2
 
@@ -70,7 +65,7 @@ object TIFFlatteningProcessor extends Processor {
         convertCmd.run(convertOp)
 
         val flattened = new File(i.getParentFile, FLATTENED_PREFIX + i.getName)
-        if(flattened.exists()) {
+        if (flattened.exists()) {
           i.renameTo(new File(oldDir, i.getName))
           flattened.renameTo(new File(oldDir.getParentFile, i.getName))
           info(task, """Image flattened succesfully, moved original to directory "_original"""", Some(i.getAbsolutePath), Some(flattened.getAbsolutePath))
