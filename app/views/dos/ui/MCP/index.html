@@ -31,10 +31,10 @@
             <tr>
                 <td><a href="@{dos.ui.MCP.browse(file.path)}">${file.name}</a></td>
                 <td>
-                    <button data-bind="click: function() { addTask('${file.path}', 'createThumbnails'); }" class="button">Make thumbnails</button>
-                    <button data-bind="click: function() { addTask('${file.path}', 'deleteThumbnails'); }" class="button">Remove thumbnails</button>
-                    <button data-bind="click: function() { addTask('${file.path}', 'flatten'); }" class="button">Flatten source TIFs</button>
-                    <button data-bind="click: function() { addTask('${file.path}', 'tiles'); }" class="button">Make tiles</button>
+                    <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'createThumbnails'); }" class="button">Make thumbnails</button>
+                    <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'deleteThumbnails'); }" class="button">Remove thumbnails</button>
+                    <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'flatten'); }" class="button">Flatten source TIFs</button>
+                    <button data-bind="click: function() { addTask('${file.path.escapeJavaScript()}', 'tiles'); }" class="button">Make tiles</button>
                 </td>
             </tr>
             #{/if}
