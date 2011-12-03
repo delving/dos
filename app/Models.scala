@@ -7,7 +7,7 @@ import java.util.Date
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import java.io.File
-import play.{Logger, Play}
+import play.{Play}
 
 package object dos {
 
@@ -18,6 +18,11 @@ package object dos {
   val logCollection = connection("Logs")
   val originCollection = connection("Files")
 
+  def getNode = {
+    Play.configuration.getProperty("culturehub.nodeName", Play.configuration.getProperty("dos.nodeName"))
+  }
+
+
 }
 
 package dos {
@@ -27,6 +32,7 @@ import java.net.URL
 case class Log(_id: ObjectId = new ObjectId,
                task_id: ObjectId,
                date: Date = new Date,
+               node: String,
                message: String,
                taskType: TaskType, // saved here for redundancy
                sourceItem: Option[String] = None,
@@ -46,6 +52,7 @@ object LogLevel {
 }
 
 case class Task(_id: ObjectId = new ObjectId,
+                node: String,
                 path: String,
                 taskType: TaskType,
                 params: Map[String, String] = Map.empty[String, String],
@@ -69,7 +76,7 @@ case class Task(_id: ObjectId = new ObjectId,
 object Task extends SalatDAO[Task, ObjectId](collection = taskCollection) {
   def list(taskType: TaskType) = Task.find(MongoDBObject("taskType.name" -> taskType.name)).toList
 
-  def list(state: TaskState) = Task.find(MongoDBObject("state.name" -> state.name)).sort(MongoDBObject("queuedAt" -> 1)).toList
+  def list(state: TaskState) = Task.find(MongoDBObject("state.name" -> state.name, "node" -> getNode)).sort(MongoDBObject("queuedAt" -> 1)).toList
 
   def listAll() = Task.find(MongoDBObject()).sort(MongoDBObject("queuedAt" -> 1)).toList
 

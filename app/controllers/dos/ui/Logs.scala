@@ -35,6 +35,6 @@ object Logs extends Controller with Extensions {
 
   def view(taskId: ObjectId): Result = {
     val cursor: SalatMongoCursor[Log] = Log.find(MongoDBObject("task_id" -> taskId)).sort(MongoDBObject("date" -> 1))
-    Text(cursor.map(log => log.date + "\t" + log.level.name.toUpperCase  + "\t" + log.message).mkString("\n"))
+    Text(cursor.map(log => log.date + "\t" + log.level.name.toUpperCase  + "\t" +  log.node + "\t" + log.message).mkString("\n"))
   }
 }

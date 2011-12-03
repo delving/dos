@@ -5,9 +5,9 @@ import extensions.Extensions
 import TaskState._
 import org.bson.types.ObjectId
 import play.mvc.results.Result
-import play.Logger
 import play.mvc.Controller
 import scala.collection.JavaConversions.asScalaMap
+import play.{Play, Logger}
 
 /**
  *
@@ -25,7 +25,7 @@ object Tasks extends Controller with Extensions {
     val keyExtract = "params\\[([^\\]]*)\\]".r
     val taskParams: Map[String, String] = asScalaMap[String, Array[String]](params.all()).filter(_._1.startsWith("params")).toMap[String, Array[String]].map((item) => (keyExtract.findFirstMatchIn(item._1).head.group(1), item._2.head))
 
-    val task = Task(path = path, taskType = tt, params = taskParams)
+    val task = Task(node = getNode, path = path, taskType = tt, params = taskParams)
     Logger.info("Adding new task to queue: " + task.toString)
     Task.insert(task) match {
       case None => LoggedError("Could not create da task")
@@ -60,6 +60,10 @@ object Tasks extends Controller with Extensions {
       "processedItems" -> task.processedItems,
       "percentage" -> ((task.processedItems.toDouble / task.totalItems) * 100).round
     ))
+  }
+
+  private def getNode = {
+    Play.configuration.getProperty("culturehub.nodeName", Play.configuration.getProperty("dos.nodeName"))
   }
 
 }

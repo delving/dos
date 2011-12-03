@@ -1,6 +1,7 @@
 package util {
 
 import models.dos.{Log, LogLevel, Task}
+import play.Play
 
 /**
  * Logger that traces everything in relation to tasks.
@@ -19,8 +20,13 @@ trait Logging {
   }
 
   def log(task: Task, message: String, level: LogLevel = LogLevel.INFO, sourceItem: Option[String] = None, resultItem: Option[String] = None) {
-    Log.insert(Log(message = message, level = level, task_id = task._id, taskType = task.taskType, sourceItem = sourceItem, resultItem = resultItem))
+    Log.insert(Log(message = message, level = level, task_id = task._id, taskType = task.taskType, sourceItem = sourceItem, resultItem = resultItem, node = getNode))
   }
+
+  private def getNode = {
+    Play.configuration.getProperty("culturehub.nodeName", Play.configuration.getProperty("dos.nodeName"))
+  }
+
 
 }
 
