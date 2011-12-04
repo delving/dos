@@ -5,8 +5,8 @@ import play.Play
 import org.apache.commons.io.FileUtils
 import controllers.dos._
 import java.io._
-import org.im4java.process.{ErrorConsumer, OutputConsumer}
-import org.im4java.core.{ImageCommand, ConvertCmd, Operation, IMOperation}
+import org.im4java.process.{ErrorConsumer}
+import org.im4java.core.{ImageCommand, IMOperation}
 
 /**
  *
@@ -37,7 +37,9 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
     }
 
     for(image <- images; if (!task.isCancelled)) {
-      val thumbnailFile = new File(thumbnailTmpDir, image.getName)
+      // we want JPG thumbnails
+      val imageName = image.getName.substring(0, image.getName.lastIndexOf(".")) + ".jpg"
+      val thumbnailFile = new File(thumbnailTmpDir, imageName)
       val cmd = new ImageCommand(gmCommand, "convert")
       var e: List[String] = List()
       cmd.setErrorConsumer(new ErrorConsumer() {
