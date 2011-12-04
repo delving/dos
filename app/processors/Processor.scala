@@ -17,7 +17,7 @@ trait Processor extends Logging {
   def process(task: Task, processorParams: Map[String, AnyRef] = Map.empty[String, AnyRef])
 
   def isImage(name: String) = name.contains(".") && !name.startsWith(".") && (
-          name.split("\\.")(1).toLowerCase match {
+          name.split("\\.").last.toLowerCase match {
             case "jpg" | "tif" | "tiff" => true
             case _ => false
           })
