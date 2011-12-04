@@ -36,7 +36,7 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
       return
     }
 
-    for(image <- images) {
+    for(image <- images; if (!task.isCancelled)) {
       val thumbnailFile = new File(thumbnailTmpDir, image.getName)
       val cmd = new ImageCommand(gmCommand, "convert")
       var e: List[String] = List()

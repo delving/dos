@@ -29,7 +29,7 @@ trait ThumbnailCreationProcessor extends Processor {
 
     Task.setTotalItems(task, images.size * sizes.length)
 
-    for (s <- sizes) createThumbnailsForSize(images, s, task, orgId, collectionId)
+    for (s <- sizes; if (!task.isCancelled)) createThumbnailsForSize(images, s, task, orgId, collectionId)
   }
 
   protected def createThumbnailsForSize(images: Seq[File], width: Int, task: Task, orgId: String, collectionId: String)

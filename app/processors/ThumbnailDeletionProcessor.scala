@@ -14,7 +14,6 @@ import com.mongodb.casbah.commons.MongoDBObject
 
 object ThumbnailDeletionProcessor extends Processor with Thumbnail {
   def process(task: Task, processorParams: Map[String, AnyRef]) {
-    val p = new File(task.path)
     if (!task.params.contains(controllers.dos.COLLECTION_IDENTIFIER_FIELD) || !task.params.contains(controllers.dos.ORGANIZATION_IDENTIFIER_FIELD)) {
       error(task, "No spec or organisation provided")
     } else {
