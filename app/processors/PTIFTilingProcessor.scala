@@ -74,7 +74,7 @@ object PTIFTilingProcessor extends Processor {
       Task.setTotalItems(task, images.size)
 
       for (i <- images; if (!task.isCancelled)) {
-        val targetFileName = if (i.getName.indexOf(".") > -1) i.getName.substring(0, i.getName.indexOf(".")) else i.getName
+        val targetFileName = getImageName(i.getName)
         val targetFile: File = new File(outputPath, targetFileName + ".tif")
         targetFile.createNewFile()
 

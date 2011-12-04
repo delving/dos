@@ -27,7 +27,7 @@ object JavaThumbnailCreationProcessor extends ThumbnailCreationProcessor with Th
   }
 
   protected def createThumbnailFromFile(image: File, width: Int, taskId: ObjectId, orgId: String, collectionId: String): ObjectId = {
-    val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName
+    val imageName = getImageName(image.getName)
     createThumbnailFromStream(new FileInputStream(image), image.getName, width, fileStore, Map(
       ORIGIN_PATH_FIELD -> image.getAbsolutePath,
       IMAGE_ID_FIELD -> imageName,

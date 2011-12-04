@@ -31,4 +31,7 @@ trait Processor extends Logging {
     } else Some(gmCommand)
   }
 
+  /** image name without extension **/
+  def getImageName(name: String) = if (name.indexOf(".") > 0) name.substring(0, name.lastIndexOf(".")) else name
+
 }

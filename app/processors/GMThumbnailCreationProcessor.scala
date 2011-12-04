@@ -38,7 +38,7 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
 
     for(image <- images; if (!task.isCancelled)) {
       // we want JPG thumbnails
-      val imageName = image.getName.substring(0, image.getName.lastIndexOf(".")) + ".jpg"
+      val imageName = getImageName(image.getName) + ".jpg"
       val thumbnailFile = new File(thumbnailTmpDir, imageName)
       val cmd = new ImageCommand(gmCommand, "convert")
       var e: List[String] = List()
@@ -58,7 +58,7 @@ object GMThumbnailCreationProcessor extends ThumbnailCreationProcessor with Thum
       try {
         cmd.run(resizeOperation)
         if(thumbnailFile.exists()) {
-          val imageName = if (image.getName.indexOf(".") > 0) image.getName.substring(0, image.getName.indexOf(".")) else image.getName
+          val imageName = getImageName(image.getName)
           val thumb = storeThumbnail(new BufferedInputStream(new FileInputStream(thumbnailFile)), image.getName, width, controllers.dos.fileStore, Map(
             ORIGIN_PATH_FIELD -> image.getAbsolutePath,
             IMAGE_ID_FIELD -> imageName,
