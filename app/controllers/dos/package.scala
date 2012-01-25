@@ -21,14 +21,24 @@ import com.mongodb.casbah.MongoConnection
 import com.mongodb.casbah.gridfs.GridFS
 import play.Play
 import models._
+import com.mongodb.casbah.commons.MongoDBObject
+
 package object dos {
 
   // ~~ connection to mongo
   val testStoreConnection = MongoConnection().getDB("testDoSStore")
   val testing = Play.mode == Play.Mode.DEV && Play.id == "test"
 
-  val fileStoreConnnection = createConnection(Play.configuration.getProperty("dos.db.fileStore.name", "fileStore"))
-  val fileStore = if(testing) GridFS(testStoreConnection) else GridFS(fileStoreConnnection)
+  val fileStoreConnection = createConnection(Play.configuration.getProperty("dos.db.fileStore.name", "fileStore"))
+  val fileStore = if(testing) GridFS(testStoreConnection) else GridFS(fileStoreConnection)
+
+  // TODO this fails with a NPE
+//  val fileStoreCollection = fileStoreConnection.getCollectionFromString("db.%s.fs.files".format(Play.configuration.getProperty("dos.db.fileStore.name", "fileStore")))
+//  fileStoreCollection.ensureIndex(MongoDBObject(FILE_POINTER_FIELD -> 1))
+//  fileStoreCollection.ensureIndex(MongoDBObject(THUMBNAIL_ITEM_POINTER_FIELD -> 1))
+//  fileStoreCollection.ensureIndex(MongoDBObject(IMAGE_ITEM_POINTER_FIELD -> 1))
+//  fileStoreCollection.ensureIndex(MongoDBObject(UPLOAD_UID_FIELD -> 1))
+//  fileStoreCollection.ensureIndex(MongoDBObject(IMAGE_ID_FIELD -> 1, ORGANIZATION_IDENTIFIER_FIELD -> 1, COLLECTION_IDENTIFIER_FIELD -> 1))
 
   val imageCacheStoreConnection = createConnection(Play.configuration.getProperty("dos.db.imageCache.name", "imageCache"))
   val imageCacheStore: GridFS = if(testing) GridFS(testStoreConnection) else GridFS(imageCacheStoreConnection)

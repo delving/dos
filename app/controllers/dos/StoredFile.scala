@@ -20,6 +20,7 @@ import org.bson.types.ObjectId
 
 /**
  * A File Stored by the FileStore
+ *
  * @author Manuel Bernhardt <bernhardt.manuel@gmail.com>
  */
 case class StoredFile(id: ObjectId, name: String, contentType: String, length: Long, thumbnail: Option[ObjectId]) {
@@ -27,4 +28,7 @@ case class StoredFile(id: ObjectId, name: String, contentType: String, length: L
     case Some(fid) => "/file/" + fid
     case None => ""
   }
+
+  def asFileUploadResponse(isSelected: ObjectId => Boolean) = FileUploadResponse(name = name, size = length, url = "/file/" + id, thumbnail_url = thumbnailUrl, delete_url = "/file/" + id, selected = isSelected(id), id = id.toString)
+
 }

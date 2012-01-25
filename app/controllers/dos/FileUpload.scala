@@ -66,7 +66,7 @@ object FileUpload extends Controller with Extensions with Thumbnail {
 
   // ~~ public Scala API
 
-  @Util def getFilesForUID(uid: String): Seq[StoredFile] = fileStore.find(MongoDBObject("uid" -> uid)) map {
+  @Util def getFilesForUID(uid: String): Seq[StoredFile] = fileStore.find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
     f => {
       val id = f.getId.asInstanceOf[ObjectId]
       val thumbnail = if (isImage(f)) {
@@ -85,7 +85,7 @@ object FileUpload extends Controller with Extensions with Thumbnail {
    * Attaches all files to an object, given the upload UID
    */
   @Util def markFilesAttached(uid: String, objectId: ObjectId) {
-    fileStore.find(MongoDBObject("uid" -> uid)) map {
+    fileStore.find(MongoDBObject(UPLOAD_UID_FIELD -> uid)) map {
       f =>
       // yo listen up, this ain't implemented in the mongo driver and throws an UnsupportedOperationException
       // f.removeField("uid")

@@ -1,4 +1,4 @@
-self: play -> dos 1.4.1
+self: play -> dos 1.4.2
 
 require:
     - play
